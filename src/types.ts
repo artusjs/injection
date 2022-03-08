@@ -1,18 +1,22 @@
 
-export type Constructable<T> = new (...args: any[]) => T;
+export type Constructable<T = unknown> = new (...args: any[]) => T;
 export type AbstractConstructable<T> = NewableFunction & { prototype: T };
 export type Identifier<T = unknown> = AbstractConstructable<T> | Constructable<T> | string;
 
 
-export type ContainerScope = 'singleton' | 'execution' | 'transient';
+export enum ScopeEnum {
+    SINGLETON = 'singleton',
+    EXECUTION = 'execution',
+    TRANSIENT = 'transient'
+}
 
-export interface InjectableMetadata<T = unknown> {
+export interface InjectableMetadata<T = any> {
     id: Identifier;
-    scope: ContainerScope;
-    type: Constructable<T> | null;
-    value: unknown;
-    properties: any[];
-    constructorArgs: any[];
+    scope: ScopeEnum;
+    properties?: any[];
+    constructorArgs?: any[];
+    type?: Constructable<T> | null;
+    value?: unknown;
     path?: string;
     filename?: string;
     filenameWithoutExt?: string;
