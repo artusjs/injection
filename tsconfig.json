@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "outDir": "./lib",
+        "target": "es2017",
+        "module": "commonjs",
+        "lib": [
+            "es2015",
+            "es2016",
+            "es2017"
+        ],
+        "allowJs": false,
+        "jsx": "react",
+        "declaration": false,
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "moduleResolution": "node",
+        "types": [
+            "node",
+            "jest"
+        ],
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "exclude": [
+        "lib",
+        "test",
+    ],
+}
