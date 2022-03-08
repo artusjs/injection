@@ -1,5 +1,5 @@
 export function init(): MethodDecorator {
-    return (target: any, property: string | symbol, descriptor: PropertyDescriptor) => {
+    return (_target: any, _property: string | symbol, _descriptor: PropertyDescriptor) => {
 
     };
 }
