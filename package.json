@@ -4,6 +4,7 @@
   "description": "A IoC Implemention for Artus.",
   "main": "lib/index.js",
   "scripts": {
+    "build": "rm -rf lib && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -27,8 +27,7 @@ export function inject(id?: Identifier): PropertyDecorator | ParameterDecorator 
         }
 
         const metadata = (getMetadata(CLASS_PROPERTY, target) || []) as ReflectMetadataType[];
-
-        metadata.push({ id: propertyType!, prop: propertyKey, });
+        metadata.push({ id: propertyType!, propertyName: propertyKey, });
         setMetadata(CLASS_PROPERTY, metadata, target);
     };
 }

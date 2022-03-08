@@ -6,6 +6,7 @@ import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata } from "./
 export default class Container {
 
     private registry: Map<Identifier, InjectableMetadata>;
+    // @ts-ignore
     private name: string;
     constructor(name: string) {
         this.name = name;
@@ -81,7 +82,7 @@ export default class Container {
 
     private handleProps(instance: any, props: ReflectMetadataType[]) {
         props.forEach(prop => {
-            instance[prop.prop!] = this.get(prop.id);
+            instance[prop.propertyName!] = this.get(prop.id);
         });
     }
 

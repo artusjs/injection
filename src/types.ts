@@ -27,5 +27,5 @@ export type InjectableOptions = Omit<InjectableMetadata, 'properties' | 'constru
 export interface ReflectMetadataType {
     id: Identifier;
     index?: number;
-    prop?: string | symbol;
+    propertyName?: string | symbol;
 }

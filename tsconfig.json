@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "outDir": "./lib",
+        "rootDir": "./src",
         "target": "es2017",
         "module": "commonjs",
         "lib": [
@@ -10,7 +11,7 @@
         ],
         "allowJs": false,
         "jsx": "react",
-        "declaration": false,
+        "declaration": true,
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "strictNullChecks": true,
