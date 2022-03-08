@@ -1,5 +1,5 @@
 
-import { InjectableOptions, ReflectMetadataType } from ".";
+import { CLASS_ASYNC_INIT_METHOD, InjectableOptions, ReflectMetadataType } from ".";
 import { Identifier, InjectableMetadata, ScopeEnum, Constructable } from "./types";
 import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from './constant';
 import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata } from "./util";
@@ -23,8 +23,18 @@ export default class Container {
     }
 
     public async getAsync(id: Identifier) {
-        const instance = this.get(id);
-        await instance.init();
+        const md = this.registry.get(id);
+        // TODO: custom error
+        if (!md) {
+            throw new Error('not found');
+        }
+        const instance = this.getValue(md);
+        let methodName: string | symbol = 'init';
+        if (md.type) {
+            const initMd = getMetadata(CLASS_ASYNC_INIT_METHOD, md.type) as ReflectMetadataType;
+            methodName = initMd?.propertyName || methodName;
+        }
+        await instance[methodName]?.();
         return instance;
     }
 

@@ -2,7 +2,8 @@ import { Identifier, ReflectMetadataType } from "..";
 import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata } from "../util";
 import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from "../constant";
 
-export function inject(id?: Identifier): PropertyDecorator | ParameterDecorator {
+
+export function Inject(id?: Identifier) {
     return (target: any, propertyKey: string | symbol, index?: number) => {
         target = target.constructor ?? target;
         let propertyType = id;
