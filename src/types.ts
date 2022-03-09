@@ -18,14 +18,13 @@ export interface InjectableMetadata<T = any> {
     type?: Constructable<T> | null;
     value?: unknown;
     path?: string;
-    filename?: string;
-    filenameWithoutExt?: string;
 }
 
 export type InjectableOptions = Omit<InjectableMetadata, 'properties' | 'constructorArgs'>;
 
 export interface ReflectMetadataType {
     id: Identifier;
+    scope?: ScopeEnum;
     index?: number;
     propertyName?: string | symbol;
 }

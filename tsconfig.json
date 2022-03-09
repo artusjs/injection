@@ -35,6 +35,6 @@
     },
     "exclude": [
         "lib",
-        "test",
+        "test/**"
     ],
 }

@@ -54,12 +54,12 @@ export default class Container {
         if (!type) {
             throw new Error('type is required');
         }
-        const targetMd = getMetadata(CLASS_CONSTRUCTOR, options.type) as ReflectMetadataType;
-        const id = options.id ?? targetMd.id ?? options.type;
-        const scope = options.scope ?? ScopeEnum.SINGLETON;
-        const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, options.type) as ReflectMetadataType[];
-        const props = recursiveGetMetadata(CLASS_PROPERTY, options.type) as ReflectMetadataType[];
-        const md: InjectableMetadata = { ...options, id, scope, constructorArgs: args, properties: props };
+        const targetMd = getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType;
+        const id = targetMd.id ?? options.id ?? type;
+        const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
+        const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
+        const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
+        const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props };
         this.registry.set(md.id, md);
         return this;
     }
