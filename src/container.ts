@@ -3,6 +3,8 @@ import { CLASS_ASYNC_INIT_METHOD, InjectableOptions, ReflectMetadataType } from 
 import { Identifier, InjectableMetadata, ScopeEnum, Constructable } from "./types";
 import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from './constant';
 import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata } from "./util";
+import { NotFoundError } from "./error/not_found";
+import { NoTypeError } from "./error/no_type";
 export default class Container {
 
     private registry: Map<Identifier, InjectableMetadata>;
@@ -15,18 +17,16 @@ export default class Container {
 
     public get(id: Identifier): any {
         const md = this.registry.get(id);
-        // TODO: custom error
         if (!md) {
-            throw new Error('not found');
+            throw new NotFoundError(id);
         }
         return this.getValue(md);
     }
 
     public async getAsync(id: Identifier) {
         const md = this.registry.get(id);
-        // TODO: custom error
         if (!md) {
-            throw new Error('not found');
+            throw new NotFoundError(id);
         }
         const instance = this.getValue(md);
         let methodName: string | symbol = 'init';
@@ -50,11 +50,11 @@ export default class Container {
                 type = options.id as Constructable;
             }
         }
-        // TODO: custom error
+
         if (!type) {
-            throw new Error('type is required');
+            throw new NoTypeError('type is required');
         }
-        const targetMd = getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType;
+        const targetMd = getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType || {};
         const id = targetMd.id ?? options.id ?? type;
         const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
         const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
@@ -80,7 +80,7 @@ export default class Container {
 
     private resolveParams(clazz: any, args?: ReflectMetadataType[]): any[] {
         if (!args) {
-            args = getParamMetadata(clazz) ?? [].map((ele, index) => ({ id: ele, index }));
+            args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({ id: ele, index }));
         }
         return args!.map(arg => {
             if (!this.isPrimitiveType((arg.id as any)?.name)) {

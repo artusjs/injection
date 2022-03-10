@@ -1,6 +1,6 @@
 {
-  "name": "@artusjs/injection",
-  "version": "0.0.1-alpha.0",
+  "name": "@artus/injection",
+  "version": "0.0.1",
   "description": "A IoC Implemention for Artus.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
