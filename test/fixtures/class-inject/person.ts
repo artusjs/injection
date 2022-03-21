@@ -12,7 +12,7 @@ export class Person {
 
     @Inject('config.email')
     //@ts-ignore
-    private email: string;
+    public email: string;
 
     sayHello() {
         console.log(this.phone.numbs, this.email);

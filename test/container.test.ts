@@ -8,10 +8,11 @@ import { Foo } from './fixtures/constructor-args/foo';
 const container = new Container('default');
 describe("container", () => {
     beforeAll(() => {
+        container.set({ id: 'config.email', value: 'artus@artusjs.com' });
+        container.set({ id: 'config.phone', value: '12345678901' })
         container.set({ id: Phone });
         container.set({ id: Person });
         container.set({ id: Foo });
-        container.set({ id: 'config.email', value: 'artus@artusjs.com' })
     });
     it("should get instance from container", () => {
         const person = container.get(Person);
@@ -19,5 +20,11 @@ describe("container", () => {
         expect(person.phone).toBeDefined();
         expect(person.phone).toBeInstanceOf(Phone);
         expect(person.email).toBe('artus@artusjs.com');
+    });
+
+    it('should get instance when inject constructor args', () => {
+        const foo: Foo = container.get(Foo);
+        expect(foo).toBeDefined();
+        expect(foo.id).toBe('12345678901');
     });
 });

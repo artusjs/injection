@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "outDir": "./lib",
-        "rootDir": "./src",
         "target": "es2017",
         "module": "commonjs",
         "lib": [
@@ -34,7 +33,6 @@
         "emitDecoratorMetadata": true
     },
     "exclude": [
-        "lib",
-        "test/**"
+        "lib"
     ],
 }

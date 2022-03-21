@@ -28,3 +28,10 @@ export interface ReflectMetadataType {
     index?: number;
     propertyName?: string | symbol;
 }
+
+export interface ContainerType {
+    get<T>(id: Identifier<T>): T;
+    getAsync<T>(id: Identifier<T>): Promise<T>;
+    set(options: Partial<InjectableOptions>): this;
+    getDefinition(id: Identifier): InjectableMetadata | undefined;
+}
