@@ -1,7 +1,5 @@
-
-import { CLASS_ASYNC_INIT_METHOD, InjectableOptions, ReflectMetadataType } from ".";
-import { Identifier, InjectableMetadata, ScopeEnum, Constructable, ContainerType } from "./types";
-import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from './constant';
+import { Identifier, InjectableMetadata, InjectableOptions, ScopeEnum, Constructable, ContainerType, ReflectMetadataType } from "./types";
+import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS, CLASS_ASYNC_INIT_METHOD } from './constant';
 import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata, isPrimitiveFunction } from "./util";
 import { NotFoundError } from "./error/not_found";
 import { NoTypeError } from "./error/no_type";

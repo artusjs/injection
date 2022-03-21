@@ -1,5 +1,5 @@
 import Container from "./container";
-import { ContainerType, Identifier, ReflectMetadataType } from "./types";
+import { ContainerType, Identifier, ReflectMetadataType, ScopeEnum } from "./types";
 import { NotFoundError } from "./error/not_found";
 import { getMetadata } from "./util";
 import { CLASS_ASYNC_INIT_METHOD } from './constant';
@@ -14,17 +14,21 @@ export default class ExecutionContainer extends Container {
         this.ctx = ctx;
     }
 
-    public get<T = unknown>(id: Identifier): T {
+    public get<T = unknown>(id: Identifier<T>): T {
         const md = this.registry.get(id) ?? this.parent.getDefinition(id);
         if (!md) {
             throw new NotFoundError(id);
         }
 
-        return this.getValue(md);
+        const value = this.getValue(md);
+        if (md.scope === ScopeEnum.EXECUTION) {
+            md.value = value;
+        }
+        return value;
     }
 
 
-    public async getAsync<T = unknown>(id: Identifier): Promise<T> {
+    public async getAsync<T = unknown>(id: Identifier<T>): Promise<T> {
         const md = this.registry.get(id) ?? this.parent.getDefinition(id);
         if (!md) {
             throw new NotFoundError(id);
@@ -36,6 +40,9 @@ export default class ExecutionContainer extends Container {
             methodName = initMd?.propertyName || methodName;
         }
         await instance[methodName]?.();
+        if (md.scope === ScopeEnum.EXECUTION) {
+            md.value = instance;
+        }
         return instance;
     }
 
