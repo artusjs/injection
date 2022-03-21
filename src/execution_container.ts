@@ -2,7 +2,7 @@ import Container from "./container";
 import { ContainerType, Identifier, ReflectMetadataType, ScopeEnum } from "./types";
 import { NotFoundError } from "./error/not_found";
 import { getMetadata } from "./util";
-import { CLASS_ASYNC_INIT_METHOD } from './constant';
+import { CLASS_ASYNC_INIT_METHOD, EXECUTION_CONTEXT_KEY } from './constant';
 
 
 export default class ExecutionContainer extends Container {
@@ -12,6 +12,7 @@ export default class ExecutionContainer extends Container {
         super('execution');
         this.parent = parent;
         this.ctx = ctx;
+        this.set({ id: EXECUTION_CONTEXT_KEY, value: ctx });
     }
 
     public get<T = unknown>(id: Identifier<T>): T {
