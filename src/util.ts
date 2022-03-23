@@ -79,3 +79,7 @@ export function isClass(clazz: any) {
 export function isNumber(value) {
     return typeof value === 'number';
 }
+
+export function isUndefined(value) {
+    return typeof value === 'undefined';
+}
