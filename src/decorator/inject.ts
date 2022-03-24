@@ -1,12 +1,12 @@
-import { Identifier, ReflectMetadataType } from "..";
-import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isUndefined } from "../util";
+import { Identifier, ReflectMetadataType } from "../types";
+import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isPrimitiveFunction, isObject, isUndefined } from "../util";
 import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from "../constant";
 import { CannotInjectValueError } from "../error/cannot_inject_value";
 
 
 export function Inject(id?: Identifier) {
     return (target: any, propertyKey: string | symbol, index?: number) => {
-        if (target.constructor !== Function) {
+        if (isObject(target)) {
             target = target.constructor;
         }
         let propertyType = id;
@@ -19,7 +19,7 @@ export function Inject(id?: Identifier) {
             propertyType = paramTypes?.[index!];
         }
 
-        if (propertyType === undefined || propertyType === Object) {
+        if (!propertyType || isPrimitiveFunction(propertyType)) {
             throw new CannotInjectValueError(target, propertyKey);
         }
 

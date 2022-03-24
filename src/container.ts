@@ -1,21 +1,19 @@
-
-import { CLASS_ASYNC_INIT_METHOD, InjectableOptions, ReflectMetadataType } from ".";
-import { Identifier, InjectableMetadata, ScopeEnum, Constructable } from "./types";
-import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from './constant';
-import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata } from "./util";
+import { Identifier, InjectableMetadata, InjectableOptions, ScopeEnum, Constructable, ContainerType, ReflectMetadataType } from "./types";
+import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS, CLASS_ASYNC_INIT_METHOD } from './constant';
+import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata, isPrimitiveFunction } from "./util";
 import { NotFoundError } from "./error/not_found";
 import { NoTypeError } from "./error/no_type";
-export default class Container {
+export default class Container implements ContainerType {
 
-    private registry: Map<Identifier, InjectableMetadata>;
+    protected registry: Map<Identifier, InjectableMetadata>;
     // @ts-ignore
-    private name: string;
+    protected name: string;
     constructor(name: string) {
         this.name = name;
         this.registry = new Map();
     }
 
-    public get(id: Identifier): any {
+    public get<T = unknown>(id: Identifier<T>): T {
         const md = this.registry.get(id);
         if (!md) {
             throw new NotFoundError(id);
@@ -23,7 +21,7 @@ export default class Container {
         return this.getValue(md);
     }
 
-    public async getAsync(id: Identifier) {
+    public async getAsync<T = unknown>(id: Identifier<T>): Promise<T> {
         const md = this.registry.get(id);
         if (!md) {
             throw new NotFoundError(id);
@@ -64,7 +62,11 @@ export default class Container {
         return this;
     }
 
-    private getValue(md: InjectableMetadata) {
+    public getDefinition<T = unknown>(id: Identifier<T>): InjectableMetadata<T> | undefined {
+        return this.registry.get(id);
+    }
+
+    protected getValue(md: InjectableMetadata) {
         if (md.value) {
             return md.value;
         }
@@ -83,7 +85,7 @@ export default class Container {
             args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({ id: ele, index }));
         }
         return args!.map(arg => {
-            if (!this.isPrimitiveType((arg.id as any)?.name)) {
+            if (!isPrimitiveFunction((arg.id as any))) {
                 return this.get(arg.id);
             }
             return undefined;
@@ -94,9 +96,5 @@ export default class Container {
         props.forEach(prop => {
             instance[prop.propertyName!] = this.get(prop.id);
         });
-    }
-
-    private isPrimitiveType(typeName: string) {
-        return ['string', 'boolean', 'number', 'object'].includes(typeName.toLowerCase());
     }
 }

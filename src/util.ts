@@ -83,3 +83,12 @@ export function isNumber(value) {
 export function isUndefined(value) {
     return typeof value === 'undefined';
 }
+
+export function isObject(value) {
+    return typeof value === 'object';
+}
+
+
+export function isPrimitiveFunction(value) {
+    return ['String', 'Boolean', 'Number', 'Object'].includes(value.name);
+}
