@@ -1,4 +1,3 @@
-
 import 'reflect-metadata';
 import { Container, ExecutionContainer, ScopeEnum } from '../src';
 import { Phone } from './fixtures/class-inject/phone';

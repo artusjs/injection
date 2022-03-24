@@ -108,3 +108,4 @@ yarn.lock
 pnpm-lock.yaml
 
 lib
+.vscode
