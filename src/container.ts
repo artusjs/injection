@@ -1,13 +1,32 @@
-import { Identifier, InjectableMetadata, InjectableOptions, ScopeEnum, Constructable, ContainerType, ReflectMetadataType } from "./types";
-import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS, CLASS_ASYNC_INIT_METHOD } from './constant';
-import { getMetadata, isClass, recursiveGetMetadata, getParamMetadata, isPrimitiveFunction } from "./util";
-import { NotFoundError } from "./error/not_found";
-import { NoTypeError } from "./error/no_type";
-export default class Container implements ContainerType {
+import {
+    CLASS_CONSTRUCTOR,
+    CLASS_PROPERTY,
+    CLASS_CONSTRUCTOR_ARGS,
+    CLASS_ASYNC_INIT_METHOD,
+} from './constant';
+import {
+    Constructable,
+    ContainerType,
+    Identifier,
+    InjectableMetadata,
+    InjectableOptions,
+    ReflectMetadataType,
+    ScopeEnum,
+} from "./types";
+import {
+    getMetadata,
+    getParamMetadata,
+    isClass,
+    isPrimitiveFunction,
+    recursiveGetMetadata,
+} from "./util";
+import { NotFoundError, NoTypeError } from "./errors";
 
+export default class Container implements ContainerType {
     protected registry: Map<Identifier, InjectableMetadata>;
     // @ts-ignore
     protected name: string;
+
     constructor(name: string) {
         this.name = name;
         this.registry = new Map();
@@ -40,7 +59,11 @@ export default class Container implements ContainerType {
         let type = options.type;
         if (!type) {
             if (options.id && options.value) {
-                const md: InjectableMetadata = { id: options.id, value: options.value, scope: options.scope ?? ScopeEnum.SINGLETON };
+                const md: InjectableMetadata = {
+                    id:options.id,
+                    value: options.value,
+                    scope: options.scope ?? ScopeEnum.SINGLETON,
+                };
                 this.registry.set(md.id, md);
                 return this;
             }

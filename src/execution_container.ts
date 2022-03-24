@@ -1,9 +1,13 @@
-import Container from "./container";
-import { ContainerType, Identifier, ReflectMetadataType, ScopeEnum } from "./types";
-import { NotFoundError } from "./error/not_found";
-import { getMetadata } from "./util";
 import { CLASS_ASYNC_INIT_METHOD, EXECUTION_CONTEXT_KEY } from './constant';
-
+import Container from "./container";
+import {
+    ContainerType,
+    Identifier,
+    ReflectMetadataType,
+    ScopeEnum,
+} from "./types";
+import { getMetadata } from "./util";
+import { NotFoundError } from "./errors";
 
 export default class ExecutionContainer extends Container {
     private parent: ContainerType;
@@ -27,7 +31,6 @@ export default class ExecutionContainer extends Container {
         }
         return value;
     }
-
 
     public async getAsync<T = unknown>(id: Identifier<T>): Promise<T> {
         const md = this.registry.get(id) ?? this.parent.getDefinition(id);

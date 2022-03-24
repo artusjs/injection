@@ -2,7 +2,6 @@ import { Inject } from '../../src';
 import 'reflect-metadata';
 
 
-
 describe('inject decorator', () => {
     it('should throw can not inject error', () => {
         try {
