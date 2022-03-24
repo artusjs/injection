@@ -20,10 +20,4 @@ describe("container", () => {
         expect(person.phone).toBeInstanceOf(Phone);
         expect(person.email).toBe('artus@artusjs.com');
     });
-
-    it('should throw error', () => {
-        expect(() => {
-            container.get(Foo);
-        }).toThrowError();
-    });
 });
