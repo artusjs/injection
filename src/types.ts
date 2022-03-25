@@ -10,17 +10,24 @@ export enum ScopeEnum {
     TRANSIENT = 'transient'
 }
 
-export interface InjectableMetadata<T = any> {
+export interface InjectableOption {
+    id?: Identifier;
+    scope?: ScopeEnum;
+};
+
+export interface InjectableDefinition<T = unknown> {
     id: Identifier;
     scope: ScopeEnum;
-    properties?: any[];
-    constructorArgs?: any[];
     type?: Constructable<T> | null;
     value?: unknown;
     path?: string;
 }
 
-export type InjectableOptions = Omit<InjectableMetadata, 'properties' | 'constructorArgs'>;
+export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
+    properties?: any[];
+    constructorArgs?: any[];
+    initMethod?: string | symbol;
+}
 
 export interface ReflectMetadataType {
     id: Identifier;
@@ -32,6 +39,6 @@ export interface ReflectMetadataType {
 export interface ContainerType {
     get<T>(id: Identifier<T>): T;
     getAsync<T>(id: Identifier<T>): Promise<T>;
-    set(options: Partial<InjectableOptions>): this;
+    set(options: Partial<InjectableDefinition>): this;
     getDefinition(id: Identifier): InjectableMetadata | undefined;
 }
