@@ -1,12 +1,10 @@
-import { CLASS_ASYNC_INIT_METHOD, EXECUTION_CONTEXT_KEY } from './constant';
+import { EXECUTION_CONTEXT_KEY } from './constant';
 import Container from "./container";
 import {
     ContainerType,
     Identifier,
-    ReflectMetadataType,
     ScopeEnum,
 } from "./types";
-import { getMetadata } from "./util";
 import { NotFoundError } from "./errors";
 
 export default class ExecutionContainer extends Container {
@@ -38,12 +36,8 @@ export default class ExecutionContainer extends Container {
             throw new NotFoundError(id);
         }
         const instance = this.getValue(md);
-        let methodName: string | symbol = 'init';
-        if (md.type) {
-            const initMd = getMetadata(CLASS_ASYNC_INIT_METHOD, md.type) as ReflectMetadataType;
-            methodName = initMd?.propertyName || methodName;
-        }
-        await instance[methodName]?.();
+
+        await instance[md.initMethod!]?.();
         if (md.scope === ScopeEnum.EXECUTION) {
             md.value = instance;
         }

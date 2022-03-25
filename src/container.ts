@@ -9,7 +9,7 @@ import {
     ContainerType,
     Identifier,
     InjectableMetadata,
-    InjectableOptions,
+    InjectableDefinition,
     ReflectMetadataType,
     ScopeEnum,
 } from "./types";
@@ -46,21 +46,16 @@ export default class Container implements ContainerType {
             throw new NotFoundError(id);
         }
         const instance = this.getValue(md);
-        let methodName: string | symbol = 'init';
-        if (md.type) {
-            const initMd = getMetadata(CLASS_ASYNC_INIT_METHOD, md.type) as ReflectMetadataType;
-            methodName = initMd?.propertyName || methodName;
-        }
-        await instance[methodName]?.();
+        await instance[md.initMethod!]?.();
         return instance;
     }
 
-    public set(options: Partial<InjectableOptions>) {
+    public set(options: Partial<InjectableDefinition>) {
         let type = options.type;
         if (!type) {
             if (options.id && options.value) {
                 const md: InjectableMetadata = {
-                    id:options.id,
+                    id: options.id,
                     value: options.value,
                     scope: options.scope ?? ScopeEnum.SINGLETON,
                 };
@@ -80,7 +75,9 @@ export default class Container implements ContainerType {
         const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
         const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
         const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
-        const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props };
+        const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
+
+        const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props, initMethod: initMethodMd?.propertyName ?? 'init' };
         this.registry.set(md.id, md);
         return this;
     }
