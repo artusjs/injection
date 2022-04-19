@@ -8,3 +8,4 @@ export * from './decorator/init';
 export * from './decorator/inject';
 export * from './decorator/injectable';
 export * from './constant';
+export * from './util';
