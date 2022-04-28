@@ -21,6 +21,11 @@ export interface InjectableDefinition<T = unknown> {
     type?: Constructable<T> | null;
     value?: unknown;
     path?: string;
+    /**
+     * Indicates whether a new instance should be created as soon as the class is registered.
+     * By default the registered classes are only instantiated when they are requested from the container.
+     */
+    eager?: boolean;
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
