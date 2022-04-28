@@ -79,6 +79,10 @@ export default class Container implements ContainerType {
 
         const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props, initMethod: initMethodMd?.propertyName ?? 'init' };
         this.registry.set(md.id, md);
+        if (md.eager && md.scope !== ScopeEnum.TRANSIENT) {
+            this.get(md.id);
+        }
+
         return this;
     }
 
