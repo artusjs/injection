@@ -45,7 +45,6 @@ describe("container", () => {
     });
 
     it('should get instance ok by type when class register by string id', () => {
-        console.log(container, '>>>>>')
         const phone = container.get('phone');
         expect(phone).toBeInstanceOf(Phone);
 
