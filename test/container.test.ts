@@ -16,7 +16,7 @@ describe("container", () => {
         container.set({ id: 'config.email', value: 'artus@artusjs.com' });
         container.set({ id: 'config.phone', value: '12345678901' });
         container.set({ id: 'planet', value: 'earth' })
-        container.set({ id: Phone });
+        container.set({ type: Phone });
         container.set({ id: Person });
         container.set({ id: Foo, scope: ScopeEnum.EXECUTION });
         container.set({ id: Bar, scope: ScopeEnum.TRANSIENT });
@@ -42,6 +42,16 @@ describe("container", () => {
         const cat = container.get(Cat);
         expect(cat).toBeDefined();
         expect(cat.planet).toBe('earth');
+    });
+
+    it('should get instance ok by type when class register by string id', () => {
+        console.log(container, '>>>>>')
+        const phone = container.get('phone');
+        expect(phone).toBeInstanceOf(Phone);
+
+        const phone1 = container.get(Phone);
+        expect(phone1).toBeInstanceOf(Phone);
+
     });
 
     describe('ExecutionContainer', () => {

@@ -1,6 +1,6 @@
 import { Injectable } from '../../../src';
 
-@Injectable()
+@Injectable({ id: 'phone' })
 export class Phone {
     // @ts-ignore
     public numbs: string;
