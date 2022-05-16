@@ -18,7 +18,7 @@ export default class ExecutionContainer extends Container {
     }
 
     public get<T = unknown>(id: Identifier<T>): T {
-        const md = this.registry.get(id) ?? this.parent.getDefinition(id);
+        const md = this.getMetadata(id) ?? this.parent.getDefinition(id);
         if (!md) {
             throw new NotFoundError(id);
         }
@@ -31,7 +31,7 @@ export default class ExecutionContainer extends Container {
     }
 
     public async getAsync<T = unknown>(id: Identifier<T>): Promise<T> {
-        const md = this.registry.get(id) ?? this.parent.getDefinition(id);
+        const md = this.getMetadata(id) ?? this.parent.getDefinition(id);
         if (!md) {
             throw new NotFoundError(id);
         }

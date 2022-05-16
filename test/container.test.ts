@@ -51,6 +51,7 @@ describe("container", () => {
         const phone1 = container.get(Phone);
         expect(phone1).toBeInstanceOf(Phone);
 
+        expect(phone).toBe(phone1);
     });
 
     describe('ExecutionContainer', () => {
