@@ -22,8 +22,10 @@ import {
 } from "./util";
 import { NotFoundError, NoTypeError } from "./errors";
 
+const mapType = Symbol['map_type'];
+
 export default class Container implements ContainerType {
-    protected registry: Map<Identifier, InjectableMetadata>;
+    private registry: Map<Identifier, InjectableMetadata>;
     // @ts-ignore
     protected name: string;
 
@@ -33,7 +35,7 @@ export default class Container implements ContainerType {
     }
 
     public get<T = unknown>(id: Identifier<T>): T {
-        const md = this.registry.get(id);
+        const md = this.getMetadata(id);
         if (!md) {
             throw new NotFoundError(id);
         }
@@ -41,7 +43,7 @@ export default class Container implements ContainerType {
     }
 
     public async getAsync<T = unknown>(id: Identifier<T>): Promise<T> {
-        const md = this.registry.get(id);
+        const md = this.getMetadata(id);
         if (!md) {
             throw new NotFoundError(id);
         }
@@ -78,7 +80,16 @@ export default class Container implements ContainerType {
         const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
 
         const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props, initMethod: initMethodMd?.propertyName ?? 'init' };
+
+        /**
+         * compatible with inject type identifier when identifier is string
+         */
+        if (md.id !== type) {
+            md[mapType] = type;
+            this.registry.set(type, md);
+        }
         this.registry.set(md.id, md);
+
         if (md.eager && md.scope !== ScopeEnum.TRANSIENT) {
             this.get(md.id);
         }
@@ -87,7 +98,7 @@ export default class Container implements ContainerType {
     }
 
     public getDefinition<T = unknown>(id: Identifier<T>): InjectableMetadata<T> | undefined {
-        return this.registry.get(id);
+        return this.getMetadata(id);
     }
 
     protected getValue(md: InjectableMetadata) {
@@ -102,6 +113,14 @@ export default class Container implements ContainerType {
             md.value = value;
         }
         return value;
+    }
+
+    protected getMetadata(id: Identifier): InjectableMetadata | undefined {
+        const md = this.registry.get(id);
+        if (md && md[mapType]) {
+            return this.registry.get(md[mapType]);
+        }
+        return md;
     }
 
     private resolveParams(clazz: any, args?: ReflectMetadataType[]): any[] {

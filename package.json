@@ -4,8 +4,11 @@
   "description": "A IoC Implemention for Artus.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "scripts": {
-    "build": "rm -rf lib && tsc",
+    "build": "tsc -p ./tsconfig.build.json",
     "prepublish": "npm run build",
     "test": "jest --coverage --config ./jest.config.js"
   },
