@@ -1,6 +1,6 @@
 import { Identifier, ReflectMetadataType } from "../types";
 import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isPrimitiveFunction, isObject, isUndefined } from "../util";
-import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS, INJECT_HANDLER } from "../constant";
+import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from "../constant";
 import { CannotInjectValueError } from "../error";
 
 
@@ -23,17 +23,15 @@ export function Inject(id?: Identifier) {
             throw new CannotInjectValueError(target, propertyKey);
         }
 
-        const md = getMetadata(INJECT_HANDLER, target, propertyKey ?? index + '') as ReflectMetadataType;
-
         if (!isUndefined(index)) {
             const metadata = (getMetadata(CLASS_CONSTRUCTOR_ARGS, target) || []) as ReflectMetadataType[];
-            metadata.push({ id: propertyType!, index, handler: md?.handler });
+            metadata.push({ id: propertyType!, index });
             setMetadata(CLASS_CONSTRUCTOR_ARGS, metadata, target);
             return;
         }
 
         const metadata = (getMetadata(CLASS_PROPERTY, target) || []) as ReflectMetadataType[];
-        metadata.push({ id: propertyType!, propertyName: propertyKey, handler: md?.handler });
+        metadata.push({ id: propertyType!, propertyName: propertyKey });
         setMetadata(CLASS_PROPERTY, metadata, target);
     };
 }

@@ -4,6 +4,7 @@ import {
     CLASS_CONSTRUCTOR_ARGS,
     CLASS_ASYNC_INIT_METHOD,
     CLASS_TAG,
+    INJECT_HANDLER,
 } from './constant';
 import {
     Constructable,
@@ -13,16 +14,17 @@ import {
     InjectableDefinition,
     ReflectMetadataType,
     ScopeEnum,
-    HandlerFunction
-} from "./types";
+    HandlerFunction,
+} from './types';
 import {
     getMetadata,
     getParamMetadata,
     isClass,
     isPrimitiveFunction,
+    isUndefined,
     recursiveGetMetadata,
-} from "./util";
-import { NotFoundError, NoTypeError, NoHandlerError } from "./error";
+} from './util';
+import { NotFoundError, NoTypeError, NoHandlerError } from './error';
 
 const mapType = Symbol('map_type');
 
@@ -79,14 +81,23 @@ export default class Container implements ContainerType {
         if (!type) {
             throw new NoTypeError('type is required');
         }
-        const targetMd = getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType || {};
+        const targetMd = (getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType) || {};
         const id = targetMd.id ?? options.id ?? type;
         const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
         const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
         const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
         const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
+        const { args: handlerArgs, props: handlerProps } = this.getHandlerMetadata(type);
 
-        const md: InjectableMetadata = { ...options, id, type, scope, constructorArgs: args, properties: props, initMethod: initMethodMd?.propertyName ?? 'init' };
+        const md: InjectableMetadata = {
+            ...options,
+            id,
+            type,
+            scope,
+            constructorArgs: (args ?? []).concat(handlerArgs),
+            properties: (props ?? []).concat(handlerProps),
+            initMethod: initMethodMd?.propertyName ?? 'init',
+        };
 
         /**
          * compatible with inject type identifier when identifier is string
@@ -106,7 +117,9 @@ export default class Container implements ContainerType {
         return this;
     }
 
-    public getDefinition<T = unknown>(id: Identifier<T>): InjectableMetadata<T> | undefined {
+    public getDefinition<T = unknown>(
+        id: Identifier<T>
+    ): InjectableMetadata<T> | undefined {
         return this.getMetadata(id);
     }
 
@@ -147,31 +160,44 @@ export default class Container implements ContainerType {
     }
 
     private resolveParams(clazz: any, args?: ReflectMetadataType[]): any[] {
-        if (!args) {
-            args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({ id: ele, index }));
+        const params: any[] = [];
+        if (!args || !args.length) {
+            args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({
+                id: ele,
+                index,
+            }));
         }
-        return args!.map(arg => {
-            if (isPrimitiveFunction((arg.id as any))) {
-                return undefined;
-            }
-
-            if (arg.handler) {
-                return this.resolveHandler(arg.handler, arg.id);
-            }
-
-            return this.get(arg.id);
-        });
-    }
-
-    private handleProps(instance: any, props: ReflectMetadataType[]) {
-        props.forEach(prop => {
-            if (prop.handler) {
-                instance[prop.propertyName!] = this.resolveHandler(prop.handler, prop.id, instance);
+        args!.forEach((arg) => {
+            if (isPrimitiveFunction(arg.id as any)) {
                 return;
             }
 
-            instance[prop.propertyName!] = this.get(prop.id);
+            params[arg.index!] = arg.handler
+                ? this.resolveHandler(arg.handler, arg.id)
+                : this.get(arg.id);
         });
+        return params;
+    }
+
+    private handleProps(instance: any, props: ReflectMetadataType[]) {
+        props.forEach((prop) => {
+            instance[prop.propertyName!] = prop.handler
+                ? this.resolveHandler(
+                    prop.handler,
+                    prop.id,
+                    instance
+                ) : this.get(prop.id);
+        });
+    }
+
+    private getHandlerMetadata(target: any) {
+        const handlerMetas = (getMetadata(INJECT_HANDLER, target) || []) as ReflectMetadataType[];
+        const args: ReflectMetadataType[] = [];
+        const props: ReflectMetadataType[] = [];
+        handlerMetas.forEach((ele) => {
+            isUndefined(ele.index) ? props.push(ele) : args.push(ele);
+        });
+        return { args, props };
     }
 
     private handleTag(target: any) {
@@ -191,7 +217,11 @@ export default class Container implements ContainerType {
         });
     }
 
-    private resolveHandler(handlerName: string, id?: Identifier, instance?: any): any {
+    private resolveHandler(
+        handlerName: string,
+        id?: Identifier,
+        instance?: any
+    ): any {
         const handler = this.handlerMap.get(handlerName);
 
         if (!handler) {
