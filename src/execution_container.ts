@@ -5,7 +5,7 @@ import {
     Identifier,
     ScopeEnum,
 } from "./types";
-import { NotFoundError } from "./errors";
+import { NotFoundError } from "./error";
 
 export default class ExecutionContainer extends Container {
     private parent: ContainerType;

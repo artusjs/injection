@@ -13,15 +13,16 @@ import {
     InjectableDefinition,
     ReflectMetadataType,
     ScopeEnum,
-} from './types';
+    HandlerFunction
+} from "./types";
 import {
     getMetadata,
     getParamMetadata,
     isClass,
     isPrimitiveFunction,
     recursiveGetMetadata,
-} from './util';
-import { NotFoundError, NoTypeError } from './errors';
+} from "./util";
+import { NotFoundError, NoTypeError, NoHandlerError } from "./error";
 
 const mapType = Symbol('map_type');
 
@@ -30,12 +31,14 @@ export default class Container implements ContainerType {
     private tags: Map<string, Set<any>>;
     // @ts-ignore
     protected name: string;
+    protected handlerMap: Map<string, HandlerFunction>;
 
 
     constructor(name: string) {
         this.name = name;
         this.registry = new Map();
         this.tags = new Map();
+        this.handlerMap = new Map();
     }
 
     public get<T = unknown>(id: Identifier<T>): T {
@@ -117,6 +120,10 @@ export default class Container implements ContainerType {
         return clazzes.map(clazz => this.get(clazz));
     }
 
+    public registerHandler(name: string, handler: HandlerFunction) {
+        this.handlerMap.set(name, handler);
+    }
+
     protected getValue(md: InjectableMetadata) {
         if (md.value) {
             return md.value;
@@ -144,15 +151,25 @@ export default class Container implements ContainerType {
             args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({ id: ele, index }));
         }
         return args!.map(arg => {
-            if (!isPrimitiveFunction((arg.id as any))) {
-                return this.get(arg.id);
+            if (isPrimitiveFunction((arg.id as any))) {
+                return undefined;
             }
-            return undefined;
+
+            if (arg.handler) {
+                return this.resolveHandler(arg.handler, arg.id);
+            }
+
+            return this.get(arg.id);
         });
     }
 
     private handleProps(instance: any, props: ReflectMetadataType[]) {
         props.forEach(prop => {
+            if (prop.handler) {
+                instance[prop.propertyName!] = this.resolveHandler(prop.handler, prop.id, instance);
+                return;
+            }
+
             instance[prop.propertyName!] = this.get(prop.id);
         });
     }
@@ -172,5 +189,14 @@ export default class Container implements ContainerType {
             }
             this.tags.get(tag)!.add(target);
         });
+    }
+
+    private resolveHandler(handlerName: string, id?: Identifier, instance?: any): any {
+        const handler = this.handlerMap.get(handlerName);
+
+        if (!handler) {
+            throw new NoHandlerError(handlerName);
+        }
+        return handler(id, instance);
     }
 }
