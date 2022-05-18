@@ -1,11 +1,11 @@
 import { EXECUTION_CONTEXT_KEY } from './constant';
-import Container from "./container";
+import Container from './container';
 import {
     ContainerType,
     Identifier,
     ScopeEnum,
-} from "./types";
-import { NotFoundError } from "./error";
+} from './types';
+import { NotFoundError } from './error';
 
 export default class ExecutionContainer extends Container {
     private parent: ContainerType;

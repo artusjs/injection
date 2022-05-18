@@ -4,7 +4,9 @@ import {
     CLASS_CONSTRUCTOR_ARGS,
     CLASS_ASYNC_INIT_METHOD,
     CLASS_TAG,
-    INJECT_HANDLER,
+    INJECT_HANDLER_ARGS,
+    INJECT_HANDLER_PROPS,
+    MAP_TYPE
 } from './constant';
 import {
     Constructable,
@@ -21,12 +23,11 @@ import {
     getParamMetadata,
     isClass,
     isPrimitiveFunction,
-    isUndefined,
     recursiveGetMetadata,
 } from './util';
 import { NotFoundError, NoTypeError, NoHandlerError } from './error';
 
-const mapType = Symbol('map_type');
+
 
 export default class Container implements ContainerType {
     private registry: Map<Identifier, InjectableMetadata>;
@@ -87,15 +88,16 @@ export default class Container implements ContainerType {
         const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
         const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
         const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
-        const { args: handlerArgs, props: handlerProps } = this.getHandlerMetadata(type);
+        const handlerArgs = getMetadata(INJECT_HANDLER_ARGS, type) as ReflectMetadataType[];
+        const handlerProps = recursiveGetMetadata(INJECT_HANDLER_PROPS, type) as ReflectMetadataType[];
 
         const md: InjectableMetadata = {
             ...options,
             id,
             type,
             scope,
-            constructorArgs: (args ?? []).concat(handlerArgs),
-            properties: (props ?? []).concat(handlerProps),
+            constructorArgs: (args ?? []).concat(handlerArgs ?? []),
+            properties: (props ?? []).concat(handlerProps ?? []),
             initMethod: initMethodMd?.propertyName ?? 'init',
         };
 
@@ -103,7 +105,7 @@ export default class Container implements ContainerType {
          * compatible with inject type identifier when identifier is string
          */
         if (md.id !== type) {
-            md[mapType] = type;
+            md[MAP_TYPE] = type;
             this.registry.set(type, md);
         }
         this.registry.set(md.id, md);
@@ -153,8 +155,8 @@ export default class Container implements ContainerType {
 
     protected getMetadata(id: Identifier): InjectableMetadata | undefined {
         const md = this.registry.get(id);
-        if (md && md[mapType]) {
-            return this.registry.get(md[mapType]);
+        if (md && md[MAP_TYPE]) {
+            return this.registry.get(md[MAP_TYPE]);
         }
         return md;
     }
@@ -167,6 +169,7 @@ export default class Container implements ContainerType {
                 index,
             }));
         }
+
         args!.forEach((arg) => {
             if (isPrimitiveFunction(arg.id as any)) {
                 return;
@@ -188,16 +191,6 @@ export default class Container implements ContainerType {
                     instance
                 ) : this.get(prop.id);
         });
-    }
-
-    private getHandlerMetadata(target: any) {
-        const handlerMetas = (getMetadata(INJECT_HANDLER, target) || []) as ReflectMetadataType[];
-        const args: ReflectMetadataType[] = [];
-        const props: ReflectMetadataType[] = [];
-        handlerMetas.forEach((ele) => {
-            isUndefined(ele.index) ? props.push(ele) : args.push(ele);
-        });
-        return { args, props };
     }
 
     private handleTag(target: any) {
