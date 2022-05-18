@@ -70,3 +70,11 @@ describe("container", () => {
         });
     });
 });
+
+describe('container#tag', () => {
+    it('should get classes by tag', () => {
+        const clazzes = container.getInjectableByTag('controller');
+        expect(clazzes.length).toBeGreaterThan(0);
+        expect(clazzes[0]).toEqual(Foo);
+    });
+});
