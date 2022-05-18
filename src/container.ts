@@ -112,6 +112,11 @@ export default class Container implements ContainerType {
         return result ? [...result] : [];
     }
 
+    public getByTag(tag: string) {
+        const clazzes = this.getInjectableByTag(tag);
+        return clazzes.map(clazz => this.get(clazz));
+    }
+
     protected getValue(md: InjectableMetadata) {
         if (md.value) {
             return md.value;

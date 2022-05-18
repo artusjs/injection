@@ -72,17 +72,34 @@ describe("container", () => {
 });
 
 describe('container#tag', () => {
-    it('should get classes by tag', () => {
-        const container = new Container('container#tag');
+    beforeAll(() => {
         addTag('controller', Foo);
         addTag('middleware', Foo);
-        container.set({ type: Foo });
-        const clazzes = container.getInjectableByTag('controller');
-        expect(clazzes.length).toBeGreaterThan(0);
-        expect(clazzes[0]).toEqual(Foo);
-
-        const clazzes2 = container.getInjectableByTag('middleware');
-        expect(clazzes2.length).toBeGreaterThan(0);
-        expect(clazzes2[0]).toEqual(Foo);
     });
+
+    describe('getInjectableByTag', () => {
+        it('should get classes by tag', () => {
+            const container = new Container('container#tag');
+            container.set({ type: Foo });
+            const clazzes = container.getInjectableByTag('controller');
+            expect(clazzes.length).toBeGreaterThan(0);
+            expect(clazzes[0]).toEqual(Foo);
+
+            const clazzes2 = container.getInjectableByTag('middleware');
+            expect(clazzes2.length).toBeGreaterThan(0);
+            expect(clazzes2[0]).toEqual(Foo);
+        });
+    });
+
+    describe('getByTag', () => {
+        it('should get instances by tag', () => {
+            const container = new Container('container#tag');
+            container.set({ type: Foo });
+            container.set({ id: 'config.phone', value: '12345678901' });
+            const instances = container.getByTag('controller');
+
+            expect(instances.length).toBeGreaterThan(0);
+            expect(instances[0]).toBeInstanceOf(Foo);
+        });
+    })
 });
