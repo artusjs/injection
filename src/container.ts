@@ -23,7 +23,7 @@ import {
 } from './util';
 import { NotFoundError, NoTypeError } from './errors';
 
-const mapType = Symbol['map_type'];
+const mapType = Symbol('map_type');
 
 export default class Container implements ContainerType {
     private registry: Map<Identifier, InjectableMetadata>;
