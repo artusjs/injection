@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Container, ExecutionContainer, ScopeEnum } from '../src';
+import { Container, ExecutionContainer, ScopeEnum, addTag } from '../src';
 import { Phone } from './fixtures/class-inject/phone';
 import { Person } from './fixtures/class-inject/person';
 import { Foo } from './fixtures/constructor-args/foo';
@@ -73,8 +73,16 @@ describe("container", () => {
 
 describe('container#tag', () => {
     it('should get classes by tag', () => {
+        const container = new Container('container#tag');
+        addTag('controller', Foo);
+        addTag('middleware', Foo);
+        container.set({ type: Foo });
         const clazzes = container.getInjectableByTag('controller');
         expect(clazzes.length).toBeGreaterThan(0);
         expect(clazzes[0]).toEqual(Foo);
+
+        const clazzes2 = container.getInjectableByTag('middleware');
+        expect(clazzes2.length).toBeGreaterThan(0);
+        expect(clazzes2[0]).toEqual(Foo);
     });
 });
