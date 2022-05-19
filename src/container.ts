@@ -3,6 +3,7 @@ import {
     CLASS_PROPERTY,
     CLASS_CONSTRUCTOR_ARGS,
     CLASS_ASYNC_INIT_METHOD,
+    CLASS_TAG,
 } from './constant';
 import {
     Constructable,
@@ -12,26 +13,29 @@ import {
     InjectableDefinition,
     ReflectMetadataType,
     ScopeEnum,
-} from "./types";
+} from './types';
 import {
     getMetadata,
     getParamMetadata,
     isClass,
     isPrimitiveFunction,
     recursiveGetMetadata,
-} from "./util";
-import { NotFoundError, NoTypeError } from "./errors";
+} from './util';
+import { NotFoundError, NoTypeError } from './errors';
 
-const mapType = Symbol['map_type'];
+const mapType = Symbol('map_type');
 
 export default class Container implements ContainerType {
     private registry: Map<Identifier, InjectableMetadata>;
+    private tags: Map<string, Set<any>>;
     // @ts-ignore
     protected name: string;
+
 
     constructor(name: string) {
         this.name = name;
         this.registry = new Map();
+        this.tags = new Map();
     }
 
     public get<T = unknown>(id: Identifier<T>): T {
@@ -94,11 +98,23 @@ export default class Container implements ContainerType {
             this.get(md.id);
         }
 
+        this.handleTag(type);
+
         return this;
     }
 
     public getDefinition<T = unknown>(id: Identifier<T>): InjectableMetadata<T> | undefined {
         return this.getMetadata(id);
+    }
+
+    public getInjectableByTag(tag: string): any[] {
+        const result = this.tags.get(tag);
+        return result ? [...result] : [];
+    }
+
+    public getByTag(tag: string) {
+        const clazzes = this.getInjectableByTag(tag);
+        return clazzes.map(clazz => this.get(clazz));
     }
 
     protected getValue(md: InjectableMetadata) {
@@ -138,6 +154,23 @@ export default class Container implements ContainerType {
     private handleProps(instance: any, props: ReflectMetadataType[]) {
         props.forEach(prop => {
             instance[prop.propertyName!] = this.get(prop.id);
+        });
+    }
+
+    private handleTag(target: any) {
+        let tags = Reflect.getOwnMetadata(CLASS_TAG, target);
+        if (!tags) {
+            return;
+        }
+
+        if (!Array.isArray(tags)) {
+            tags = [tags];
+        }
+        tags.forEach(tag => {
+            if (!this.tags.has(tag)) {
+                this.tags.set(tag, new Set());
+            }
+            this.tags.get(tag)!.add(target);
         });
     }
 }

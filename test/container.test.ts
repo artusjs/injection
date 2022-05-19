@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Container, ExecutionContainer, ScopeEnum } from '../src';
+import { Container, ExecutionContainer, ScopeEnum, addTag } from '../src';
 import { Phone } from './fixtures/class-inject/phone';
 import { Person } from './fixtures/class-inject/person';
 import { Foo } from './fixtures/constructor-args/foo';
@@ -69,4 +69,37 @@ describe("container", () => {
             expect(bar.id).toBe(123);
         });
     });
+});
+
+describe('container#tag', () => {
+    beforeAll(() => {
+        addTag('controller', Foo);
+        addTag('middleware', Foo);
+    });
+
+    describe('getInjectableByTag', () => {
+        it('should get classes by tag', () => {
+            const container = new Container('container#tag');
+            container.set({ type: Foo });
+            const clazzes = container.getInjectableByTag('controller');
+            expect(clazzes.length).toBeGreaterThan(0);
+            expect(clazzes[0]).toEqual(Foo);
+
+            const clazzes2 = container.getInjectableByTag('middleware');
+            expect(clazzes2.length).toBeGreaterThan(0);
+            expect(clazzes2[0]).toEqual(Foo);
+        });
+    });
+
+    describe('getByTag', () => {
+        it('should get instances by tag', () => {
+            const container = new Container('container#tag');
+            container.set({ type: Foo });
+            container.set({ id: 'config.phone', value: '12345678901' });
+            const instances = container.getByTag('controller');
+
+            expect(instances.length).toBeGreaterThan(0);
+            expect(instances[0]).toBeInstanceOf(Foo);
+        });
+    })
 });

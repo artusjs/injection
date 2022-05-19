@@ -1,4 +1,5 @@
 import { ReflectMetadataType } from './types';
+import { CLASS_TAG } from './constant';
 const functionPrototype = Object.getPrototypeOf(Function);
 
 export function getMetadata(metadataKey: string | symbol, target: any, propertyKey?: string | symbol): ReflectMetadataType | ReflectMetadataType[] {
@@ -58,6 +59,15 @@ export function getParamMetadata(clazz) {
  */
 export function getDesignTypeMetadata(clazz: any, property: string | symbol) {
     return Reflect.getMetadata('design:type', clazz, property);
+}
+
+export function addTag(tag: string, target: any) {
+    let tags = Reflect.getOwnMetadata(CLASS_TAG, target);
+    if (!tags) {
+        tags = [];
+        Reflect.defineMetadata(CLASS_TAG, tags, target);
+    }
+    tags.push(tag);
 }
 
 export function isClass(clazz: any) {
