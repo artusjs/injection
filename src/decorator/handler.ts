@@ -2,7 +2,7 @@ import { INJECT_HANDLER_ARGS, INJECT_HANDLER_PROPS } from '../constant';
 import { ReflectMetadataType } from '../types';
 import { isUndefined, isObject, setMetadata, getMetadata } from '../util';
 
-export function Handler(handlerName: string, id) {
+export function InjectHandler(handlerName: string, id) {
     return function (target: any, key: string, index?: number) {
         if (isObject(target)) {
             target = target.constructor;

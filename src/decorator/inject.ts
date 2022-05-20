@@ -1,7 +1,7 @@
-import { Identifier, ReflectMetadataType } from "../types";
-import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isPrimitiveFunction, isObject, isUndefined } from "../util";
-import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from "../constant";
-import { CannotInjectValueError } from "../error";
+import { Identifier, ReflectMetadataType } from '../types';
+import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isPrimitiveFunction, isObject, isUndefined } from '../util';
+import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from '../constant';
+import { CannotInjectValueError } from '../error';
 
 
 export function Inject(id?: Identifier) {

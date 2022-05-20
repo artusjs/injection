@@ -1,4 +1,4 @@
-import { InjectableOption, ScopeEnum } from "../types";
+import { InjectableOption, ScopeEnum } from '../types';
 import { setMetadata } from '../util';
 import { CLASS_CONSTRUCTOR } from '../constant'
 
