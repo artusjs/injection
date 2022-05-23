@@ -39,6 +39,7 @@ export interface ReflectMetadataType {
     scope?: ScopeEnum;
     index?: number;
     propertyName?: string | symbol;
+    handler?: string;
 }
 
 export interface ContainerType {
@@ -47,3 +48,5 @@ export interface ContainerType {
     set(options: Partial<InjectableDefinition>): this;
     getDefinition(id: Identifier): InjectableMetadata | undefined;
 }
+
+export type HandlerFunction = (handlerKey: any, instance?: any) => any;

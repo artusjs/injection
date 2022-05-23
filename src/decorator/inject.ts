@@ -1,7 +1,7 @@
-import { Identifier, ReflectMetadataType } from "../types";
-import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isPrimitiveFunction, isObject, isUndefined } from "../util";
-import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from "../constant";
-import { CannotInjectValueError } from "../errors";
+import { Identifier, ReflectMetadataType } from '../types';
+import { setMetadata, getMetadata, isNumber, getDesignTypeMetadata, getParamMetadata, isPrimitiveFunction, isObject, isUndefined } from '../util';
+import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from '../constant';
+import { CannotInjectValueError } from '../error';
 
 
 export function Inject(id?: Identifier) {
@@ -10,7 +10,7 @@ export function Inject(id?: Identifier) {
             target = target.constructor;
         }
         let propertyType = id;
-        if (!propertyType) {
+        if (!propertyType && propertyKey) {
             propertyType = getDesignTypeMetadata(target.prototype, propertyKey);
         }
 
@@ -31,7 +31,7 @@ export function Inject(id?: Identifier) {
         }
 
         const metadata = (getMetadata(CLASS_PROPERTY, target) || []) as ReflectMetadataType[];
-        metadata.push({ id: propertyType!, propertyName: propertyKey, });
+        metadata.push({ id: propertyType!, propertyName: propertyKey });
         setMetadata(CLASS_PROPERTY, metadata, target);
     };
 }

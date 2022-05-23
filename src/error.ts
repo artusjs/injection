@@ -31,3 +31,12 @@ export class NotFoundError extends createErrorClass('NotFoundError') {
         });
     }
 }
+
+export class NoHandlerError extends createErrorClass('NoHandlerError') {
+    constructor(handler: string) {
+        super(() => {
+            return (
+                `[@artus/injection] "${handler}" handler was not found in the container.`);
+        });
+    }
+}

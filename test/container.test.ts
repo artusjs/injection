@@ -6,6 +6,7 @@ import { Foo } from './fixtures/constructor-args/foo';
 import { Bar } from './fixtures/async-init/bar';
 import { Animal } from './fixtures/class-extend/animal';
 import { Cat } from './fixtures/class-extend/cat';
+import { HandlerDemo, CONFIG_ALL } from './fixtures/handler-resolve/handler';
 
 const ctx = {};
 const container = new Container('default');
@@ -102,4 +103,24 @@ describe('container#tag', () => {
             expect(instances[0]).toBeInstanceOf(Foo);
         });
     })
+});
+
+describe('handler', () => {
+    beforeAll(() => {
+        const config = { id: 1, key1: { val: 3 } };
+        container.registerHandler('config', (id) => {
+            if (id === CONFIG_ALL) {
+                return config;
+            }
+            return config[id];
+        });
+        container.set({ id: HandlerDemo });
+    });
+
+    it('should init property ok with handler', () => {
+        const handlerDemo = container.get(HandlerDemo);
+        expect(handlerDemo.config).toBeDefined();
+        expect(handlerDemo.config.key1.val).toBe(3);
+        expect(handlerDemo.id).toBe(1);
+    });
 });

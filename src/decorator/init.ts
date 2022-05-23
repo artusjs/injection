@@ -1,4 +1,4 @@
-import { setMetadata, isObject } from "../util";
+import { setMetadata, isObject } from '../util';
 import { CLASS_ASYNC_INIT_METHOD } from '../constant';
 
 export function Init(): MethodDecorator {
