@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { Container, ExecutionContainer, ScopeEnum, addTag } from '../src';
-import { Phone } from './fixtures/class-inject/phone';
-import { Person } from './fixtures/class-inject/person';
-import { Foo } from './fixtures/constructor-args/foo';
-import { Bar } from './fixtures/async-init/bar';
-import { Animal } from './fixtures/class-extend/animal';
-import { Cat } from './fixtures/class-extend/cat';
-import { HandlerDemo, CONFIG_ALL } from './fixtures/handler-resolve/handler';
+import { Phone } from './fixtures/class_inject/phone';
+import { Person } from './fixtures/class_inject/person';
+import { Foo } from './fixtures/constructor_arg/foo';
+import { Bar } from './fixtures/async_init/bar';
+import { Animal } from './fixtures/class_extend/animal';
+import { Cat } from './fixtures/class_extend/cat';
+import { HandlerDemo, CONFIG_ALL } from './fixtures/handler_resolve/handler';
 
 const ctx = {};
 const container = new Container('default');
