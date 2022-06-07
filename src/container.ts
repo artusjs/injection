@@ -6,7 +6,7 @@ import {
     CLASS_TAG,
     INJECT_HANDLER_ARGS,
     INJECT_HANDLER_PROPS,
-    MAP_TYPE
+    MAP_TYPE,
 } from './constant';
 import {
     Constructable,
@@ -27,15 +27,12 @@ import {
 } from './util';
 import { NotFoundError, NoTypeError, NoHandlerError } from './error';
 
-
-
 export default class Container implements ContainerType {
     private registry: Map<Identifier, InjectableMetadata>;
     private tags: Map<string, Set<any>>;
     // @ts-ignore
     protected name: string;
     protected handlerMap: Map<string, HandlerFunction>;
-
 
     constructor(name: string) {
         this.name = name;
@@ -89,7 +86,10 @@ export default class Container implements ContainerType {
         const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
         const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
         const handlerArgs = getMetadata(INJECT_HANDLER_ARGS, type) as ReflectMetadataType[];
-        const handlerProps = recursiveGetMetadata(INJECT_HANDLER_PROPS, type) as ReflectMetadataType[];
+        const handlerProps = recursiveGetMetadata(
+            INJECT_HANDLER_PROPS,
+            type
+        ) as ReflectMetadataType[];
 
         const md: InjectableMetadata = {
             ...options,
@@ -119,9 +119,7 @@ export default class Container implements ContainerType {
         return this;
     }
 
-    public getDefinition<T = unknown>(
-        id: Identifier<T>
-    ): InjectableMetadata<T> | undefined {
+    public getDefinition<T = unknown>(id: Identifier<T>): InjectableMetadata<T> | undefined {
         return this.getMetadata(id);
     }
 
@@ -137,6 +135,10 @@ export default class Container implements ContainerType {
 
     public registerHandler(name: string, handler: HandlerFunction) {
         this.handlerMap.set(name, handler);
+    }
+
+    public getHandler(name: string) {
+        return this.handlerMap.get(name);
     }
 
     protected getValue(md: InjectableMetadata) {
@@ -170,7 +172,7 @@ export default class Container implements ContainerType {
             }));
         }
 
-        args!.forEach((arg) => {
+        args!.forEach(arg => {
             if (isPrimitiveFunction(arg.id as any)) {
                 return;
             }
@@ -183,13 +185,10 @@ export default class Container implements ContainerType {
     }
 
     private handleProps(instance: any, props: ReflectMetadataType[]) {
-        props.forEach((prop) => {
+        props.forEach(prop => {
             instance[prop.propertyName!] = prop.handler
-                ? this.resolveHandler(
-                    prop.handler,
-                    prop.id,
-                    instance
-                ) : this.get(prop.id);
+                ? this.resolveHandler(prop.handler, prop.id, instance)
+                : this.get(prop.id);
         });
     }
 
@@ -210,12 +209,8 @@ export default class Container implements ContainerType {
         });
     }
 
-    private resolveHandler(
-        handlerName: string,
-        id?: Identifier,
-        instance?: any
-    ): any {
-        const handler = this.handlerMap.get(handlerName);
+    private resolveHandler(handlerName: string, id?: Identifier, instance?: any): any {
+        const handler = this.getHandler(handlerName);
 
         if (!handler) {
             throw new NoHandlerError(handlerName);

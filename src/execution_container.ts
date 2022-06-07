@@ -1,10 +1,6 @@
 import { EXECUTION_CONTEXT_KEY } from './constant';
 import Container from './container';
-import {
-    ContainerType,
-    Identifier,
-    ScopeEnum,
-} from './types';
+import { ContainerType, HandlerFunction, Identifier, ScopeEnum } from './types';
 import { NotFoundError } from './error';
 
 export default class ExecutionContainer extends Container {
@@ -46,5 +42,9 @@ export default class ExecutionContainer extends Container {
 
     public getCtx(): any {
         return this.ctx;
+    }
+
+    public getHandler(name: string): HandlerFunction | undefined {
+        return this.handlerMap.get(name) ?? this.parent.getHandler(name);
     }
 }
