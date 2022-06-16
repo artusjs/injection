@@ -12,11 +12,11 @@ const ctx = {};
 const container = new Container('default');
 const execContainer = new ExecutionContainer(ctx, container);
 
-describe("container", () => {
+describe('container', () => {
     beforeAll(() => {
         container.set({ id: 'config.email', value: 'artus@artusjs.com' });
         container.set({ id: 'config.phone', value: '12345678901' });
-        container.set({ id: 'planet', value: 'earth' })
+        container.set({ id: 'planet', value: 'earth' });
         container.set({ type: Phone });
         container.set({ id: Person });
         container.set({ id: Foo, scope: ScopeEnum.EXECUTION });
@@ -25,7 +25,7 @@ describe("container", () => {
         container.set({ id: Animal });
     });
 
-    it("should get instance from container", () => {
+    it('should get instance from container', () => {
         const person = container.get(Person);
         expect(person).toBeDefined();
         expect(person.phone).toBeDefined();
@@ -102,23 +102,30 @@ describe('container#tag', () => {
             expect(instances.length).toBeGreaterThan(0);
             expect(instances[0]).toBeInstanceOf(Foo);
         });
-    })
+    });
 });
 
 describe('handler', () => {
     beforeAll(() => {
         const config = { id: 1, key1: { val: 3 } };
-        container.registerHandler('config', (id) => {
+        container.registerHandler('config', id => {
             if (id === CONFIG_ALL) {
                 return config;
             }
             return config[id];
         });
-        container.set({ id: HandlerDemo });
+        container.set({ id: HandlerDemo, scope: ScopeEnum.EXECUTION });
     });
 
     it('should init property ok with handler', () => {
         const handlerDemo = container.get(HandlerDemo);
+        expect(handlerDemo.config).toBeDefined();
+        expect(handlerDemo.config.key1.val).toBe(3);
+        expect(handlerDemo.id).toBe(1);
+    });
+
+    it('should init property ok with handler in ExecutionContainer', () => {
+        const handlerDemo = execContainer.get(HandlerDemo);
         expect(handlerDemo.config).toBeDefined();
         expect(handlerDemo.config.key1.val).toBe(3);
         expect(handlerDemo.id).toBe(1);

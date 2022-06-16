@@ -1,19 +1,17 @@
-
 export type Constructable<T = unknown> = new (...args: any[]) => T;
 export type AbstractConstructable<T> = NewableFunction & { prototype: T };
 export type Identifier<T = unknown> = AbstractConstructable<T> | Constructable<T> | string;
 
-
 export enum ScopeEnum {
     SINGLETON = 'singleton',
     EXECUTION = 'execution',
-    TRANSIENT = 'transient'
+    TRANSIENT = 'transient',
 }
 
 export interface InjectableOption {
     id?: Identifier;
     scope?: ScopeEnum;
-};
+}
 
 export interface InjectableDefinition<T = unknown> {
     id: Identifier;
@@ -47,6 +45,10 @@ export interface ContainerType {
     getAsync<T>(id: Identifier<T>): Promise<T>;
     set(options: Partial<InjectableDefinition>): this;
     getDefinition(id: Identifier): InjectableMetadata | undefined;
+    getInjectableByTag(tag: string): any[];
+    getByTag(tag: string): any[];
+    registerHandler(name: string, handler: HandlerFunction): void;
+    getHandler(name: string): HandlerFunction | undefined;
 }
 
 export type HandlerFunction = (handlerKey: any, instance?: any) => any;
