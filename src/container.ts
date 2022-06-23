@@ -23,6 +23,7 @@ import {
     getParamMetadata,
     isClass,
     isPrimitiveFunction,
+    isUndefined,
     recursiveGetMetadata,
 } from './util';
 import { NotFoundError, NoTypeError, NoHandlerError } from './error';
@@ -62,7 +63,7 @@ export default class Container implements ContainerType {
     public set(options: Partial<InjectableDefinition>) {
         let type = options.type;
         if (!type) {
-            if (options.id && options.value) {
+            if (options.id && !isUndefined(options.value)) {
                 const md: InjectableMetadata = {
                     id: options.id,
                     value: options.value,
@@ -142,7 +143,7 @@ export default class Container implements ContainerType {
     }
 
     protected getValue(md: InjectableMetadata) {
-        if (md.value) {
+        if (!isUndefined(md.value)) {
             return md.value;
         }
         const clazz = md.type!;
