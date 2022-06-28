@@ -55,7 +55,7 @@ export default class Container implements ContainerType {
         if (!md) {
             throw new NotFoundError(id);
         }
-        const instance = this.getValue(md);
+        const instance = this.getValueAsync(md);
         await instance[md.initMethod!]?.();
         return instance;
     }
@@ -134,6 +134,11 @@ export default class Container implements ContainerType {
         return clazzes.map(clazz => this.get(clazz));
     }
 
+    public getByTagAsync(tag: string) {
+        const clazzes = this.getInjectableByTag(tag);
+        return clazzes.map(clazz => this.getAsync(clazz));
+    }
+
     public registerHandler(name: string, handler: HandlerFunction) {
         this.handlerMap.set(name, handler);
     }
@@ -147,9 +152,23 @@ export default class Container implements ContainerType {
             return md.value;
         }
         const clazz = md.type!;
-        const params = this.resolveParams(clazz, md.constructorArgs);
+        const params = this.resolveParams(clazz, 'get', md.constructorArgs);
         const value = new clazz(...params);
         this.handleProps(value, md.properties ?? []);
+        if (md.scope === ScopeEnum.SINGLETON) {
+            md.value = value;
+        }
+        return value;
+    }
+
+    protected async getValueAsync(md: InjectableMetadata) {
+        if (!isUndefined(md.value)) {
+            return md.value;
+        }
+        const clazz = md.type!;
+        const params = await Promise.all(this.resolveParams(clazz, 'getAsync', md.constructorArgs));
+        const value = new clazz(...params);
+        await this.handlePropsAsync(value, md.properties ?? []);
         if (md.scope === ScopeEnum.SINGLETON) {
             md.value = value;
         }
@@ -164,7 +183,11 @@ export default class Container implements ContainerType {
         return md;
     }
 
-    private resolveParams(clazz: any, args?: ReflectMetadataType[]): any[] {
+    private resolveParams(
+        clazz: any,
+        method: 'get' | 'getAsync',
+        args?: ReflectMetadataType[]
+    ): any[] {
         const params: any[] = [];
         if (!args || !args.length) {
             args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({
@@ -180,7 +203,7 @@ export default class Container implements ContainerType {
 
             params[arg.index!] = arg.handler
                 ? this.resolveHandler(arg.handler, arg.id)
-                : this.get(arg.id);
+                : this[method](arg.id);
         });
         return params;
     }
@@ -191,6 +214,16 @@ export default class Container implements ContainerType {
                 ? this.resolveHandler(prop.handler, prop.id, instance)
                 : this.get(prop.id);
         });
+    }
+
+    private async handlePropsAsync(instance: any, props: ReflectMetadataType[]) {
+        await Promise.all(
+            props.map(async prop => {
+                instance[prop.propertyName!] = prop.handler
+                    ? await this.resolveHandler(prop.handler, prop.id, instance)
+                    : await this.getAsync(prop.id);
+            })
+        );
     }
 
     private handleTag(target: any) {
