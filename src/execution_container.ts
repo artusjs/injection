@@ -1,6 +1,6 @@
 import { EXECUTION_CONTEXT_KEY } from './constant';
 import Container from './container';
-import { ContainerType, HandlerFunction, Identifier, ScopeEnum } from './types';
+import { ContainerType, HandlerFunction, Identifier, InjectableMetadata, ScopeEnum } from './types';
 import { NotFoundError } from './error';
 
 export default class ExecutionContainer extends Container {
@@ -21,16 +21,7 @@ export default class ExecutionContainer extends Container {
 
         const value = this.getValue(md);
         if (md.scope === ScopeEnum.EXECUTION) {
-            if (md.id !== md.type) {
-              this.set({
-                id: md.type!,
-                value
-              });
-            }
-            this.set({
-              id: md.id,
-              value
-            });
+            this.setValue(md, value);
         }
         return value;
     }
@@ -44,16 +35,7 @@ export default class ExecutionContainer extends Container {
 
         await instance[md.initMethod!]?.();
         if (md.scope === ScopeEnum.EXECUTION) {
-          if (md.id !== md.type) {
-            this.set({
-              id: md.type!,
-              value: instance
-            });
-          }
-          this.set({
-            id: md.id,
-            value: instance
-          });
+          this.setValue(md, instance);
         }
         return instance;
     }
@@ -64,5 +46,18 @@ export default class ExecutionContainer extends Container {
 
     public getHandler(name: string): HandlerFunction | undefined {
         return this.handlerMap.get(name) ?? this.parent.getHandler(name);
+    }
+
+    private setValue(md: InjectableMetadata, value: any) {
+      if (md.id !== md.type) {
+        this.set({
+          id: md.type!,
+          value
+        });
+      }
+      this.set({
+        id: md.id,
+        value
+      });
     }
 }
