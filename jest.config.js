@@ -1,6 +1,6 @@
 module.exports = {
     verbose: false,
-    silent: false,
+    silent: true,
     forceExit: true,
     testEnvironment: "node",
     globals: {
