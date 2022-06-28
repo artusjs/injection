@@ -23,6 +23,8 @@ describe('container', () => {
         container.set({ id: Bar, scope: ScopeEnum.TRANSIENT });
         container.set({ id: Cat });
         container.set({ id: Animal });
+        container.set({ id: 'emptyStr', value: '' });
+        container.set({ id: 'nullObj', value: null });
     });
 
     it('should get instance from container', () => {
@@ -53,6 +55,11 @@ describe('container', () => {
         expect(phone1).toBeInstanceOf(Phone);
 
         expect(phone).toBe(phone1);
+    });
+
+    it('should get empty value if value is set', () => {
+        expect(container.get('emptyStr')).toBe('');
+        expect(container.get('nullObj')).toBe(null);
     });
 
     describe('ExecutionContainer', () => {
