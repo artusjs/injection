@@ -6,6 +6,8 @@ import { Foo } from './fixtures/constructor_arg/foo';
 import { Bar } from './fixtures/async_init/bar';
 import { Animal } from './fixtures/class_extend/animal';
 import { Cat } from './fixtures/class_extend/cat';
+import ExecutionClazzA from './fixtures/execution/a';
+import ExecutionClazzB from './fixtures/execution/b';
 import { HandlerDemo, CONFIG_ALL } from './fixtures/handler_resolve/handler';
 
 const ctx = {};
@@ -25,6 +27,9 @@ describe('container', () => {
         container.set({ id: Animal });
         container.set({ id: 'emptyStr', value: '' });
         container.set({ id: 'nullObj', value: null });
+
+        container.set({ type: ExecutionClazzA });
+        container.set({ type: ExecutionClazzB });
     });
 
     it('should get instance from container', () => {
@@ -63,18 +68,50 @@ describe('container', () => {
     });
 
     describe('ExecutionContainer', () => {
-        it('should get instance when inject constructor args', () => {
-            const foo: Foo = execContainer.get(Foo);
-            expect(foo).toBeDefined();
-            expect(foo.id).toBe('12345678901');
-            const foo2: Foo = execContainer.get(Foo);
-            expect(foo === foo2).toBe(true);
+        it('should get instance by execution', () => {
+            const instanceA = execContainer.get(ExecutionClazzA);
+            const sameInstanceA = execContainer.get(ExecutionClazzA);
+            const sameInstanceAById = execContainer.get<ExecutionClazzA>('exec_a');
+
+            const anotherExecContainer = new ExecutionContainer(ctx, container);
+            const anotherInstanceA = anotherExecContainer.get(ExecutionClazzA);
+
+            expect(instanceA).toBeDefined();
+            expect(sameInstanceA).toBeDefined();
+            expect(sameInstanceAById).toBeDefined();
+            expect(anotherInstanceA).toBeDefined();
+
+            expect(instanceA.id).toBe(1);
+            expect(sameInstanceA.id).toBe(1);
+            expect(sameInstanceAById.id).toBe(1);
+            expect(anotherInstanceA.id).toBe(2);
+
+            expect(instanceA === sameInstanceA).toBeTruthy();
+            expect(instanceA === sameInstanceAById).toBeTruthy();
+            expect(instanceA === anotherInstanceA).toBeFalsy();
         });
 
         it('should get instance with async init method', async () => {
-            const bar = await execContainer.getAsync(Bar);
-            expect(bar).toBeDefined();
-            expect(bar.id).toBe(123);
+          const instanceB = await execContainer.getAsync(ExecutionClazzB);
+          const sameInstanceB = await execContainer.getAsync(ExecutionClazzB);
+          const sameInstanceBById = await execContainer.getAsync<ExecutionClazzB>('exec_b');
+
+          const anotherExecContainer = new ExecutionContainer(ctx, container);
+          const anotherInstanceB = await anotherExecContainer.getAsync(ExecutionClazzB);
+
+          expect(instanceB).toBeDefined();
+          expect(sameInstanceB).toBeDefined();
+          expect(sameInstanceBById).toBeDefined();
+          expect(anotherInstanceB).toBeDefined();
+
+          expect(instanceB.id).toBe(1);
+          expect(sameInstanceB.id).toBe(1);
+          expect(sameInstanceBById.id).toBe(1);
+          expect(anotherInstanceB.id).toBe(2);
+
+          expect(instanceB === sameInstanceB).toBeTruthy();
+          expect(instanceB === sameInstanceBById).toBeTruthy();
+          expect(instanceB === anotherInstanceB).toBeFalsy();
         });
     });
 });

@@ -21,7 +21,16 @@ export default class ExecutionContainer extends Container {
 
         const value = this.getValue(md);
         if (md.scope === ScopeEnum.EXECUTION) {
-            md.value = value;
+            if (md.id !== md.type) {
+              this.set({
+                id: md.type!,
+                value
+              });
+            }
+            this.set({
+              id: md.id,
+              value
+            });
         }
         return value;
     }
@@ -35,7 +44,16 @@ export default class ExecutionContainer extends Container {
 
         await instance[md.initMethod!]?.();
         if (md.scope === ScopeEnum.EXECUTION) {
-            md.value = instance;
+          if (md.id !== md.type) {
+            this.set({
+              id: md.type!,
+              value: instance
+            });
+          }
+          this.set({
+            id: md.id,
+            value: instance
+          });
         }
         return instance;
     }
