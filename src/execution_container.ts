@@ -31,11 +31,11 @@ export default class ExecutionContainer extends Container {
         if (!md) {
             throw new NotFoundError(id);
         }
-        const instance = this.getValue(md);
+        const instance = await this.getValueAsync(md);
 
         await instance[md.initMethod!]?.();
         if (md.scope === ScopeEnum.EXECUTION) {
-          this.setValue(md, instance);
+            this.setValue(md, instance);
         }
         return instance;
     }
@@ -49,15 +49,15 @@ export default class ExecutionContainer extends Container {
     }
 
     private setValue(md: InjectableMetadata, value: any) {
-      if (md.id !== md.type) {
+        if (md.id !== md.type) {
+            this.set({
+                id: md.type!,
+                value,
+            });
+        }
         this.set({
-          id: md.type!,
-          value
+            id: md.id,
+            value,
         });
-      }
-      this.set({
-        id: md.id,
-        value
-      });
     }
 }
