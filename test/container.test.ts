@@ -10,6 +10,8 @@ import { Cat } from './fixtures/class_extend/cat';
 import ExecutionClazzA from './fixtures/execution/a';
 import ExecutionClazzB from './fixtures/execution/b';
 import { HandlerDemo, CONFIG_ALL } from './fixtures/handler_resolve/handler';
+import ClassA from './fixtures/value/a';
+import ClassB from './fixtures/value/b';
 
 const ctx = {};
 const container = new Container('default');
@@ -227,5 +229,46 @@ describe('handler', () => {
             expect(err).toBeDefined();
             expect(err.message).toMatch('handler was not found in the container');
         }
+    });
+});
+
+describe('hasValue', () => {
+    let container: Container;
+    beforeAll(() => {
+        container = new Container('value');
+    });
+
+    it('container should check value as expected with type', () => {
+        expect(container.hasValue({ type: ClassA })).toBeFalsy();
+        expect(container.hasValue({ id: ClassA })).toBeFalsy();
+
+        // set { type: clazz }
+        container.set({ type: ClassA });
+        expect(container.hasValue({ type: ClassA })).toBeFalsy();
+
+        // set { id: clazz }
+        container.set({ id: ClassA });
+        expect(container.hasValue({ type: ClassA })).toBeFalsy();
+
+        // set { id: clazz, value: value }
+        container.set({ id: ClassA, value: new ClassA('foo') });
+        expect(container.hasValue({ type: ClassA })).toBeTruthy();
+    });
+
+    it('container should check value as expected with id', () => {
+        expect(container.hasValue({ type: ClassB })).toBeFalsy();
+        expect(container.hasValue({ id: ClassB })).toBeFalsy();
+
+        // set { type: clazz }
+        container.set({ type: ClassA });
+        expect(container.hasValue({ id: ClassA })).toBeFalsy();
+
+        // set { id: clazz }
+        container.set({ id: ClassA });
+        expect(container.hasValue({ id: ClassA })).toBeFalsy();
+
+        // set { id: clazz, value: value }
+        container.set({ id: ClassA, value: new ClassA('foo') });
+        expect(container.hasValue({ id: ClassA })).toBeTruthy();
     });
 });
