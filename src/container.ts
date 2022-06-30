@@ -61,28 +61,17 @@ export default class Container implements ContainerType {
     }
 
     public set(options: Partial<InjectableDefinition>) {
-        let type = options.type;
-        if (!type) {
-            if (options.id && !isUndefined(options.value)) {
-                const md: InjectableMetadata = {
-                    id: options.id,
-                    value: options.value,
-                    scope: options.scope ?? ScopeEnum.SINGLETON,
-                };
-                this.registry.set(md.id, md);
-                return this;
-            }
-            if (options.id && isClass(options.id)) {
-                type = options.id as Constructable;
-            }
+        if (options.id && !isUndefined(options.value)) {
+            const md: InjectableMetadata = {
+                id: options.id,
+                value: options.value,
+                scope: options.scope ?? ScopeEnum.SINGLETON,
+            };
+            this.registry.set(md.id, md);
+            return this;
         }
 
-        if (!type) {
-            throw new NoTypeError('type is required');
-        }
-        const targetMd = (getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType) || {};
-        const id = targetMd.id ?? options.id ?? type;
-        const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
+        const { type, id, scope } = this.getDefinedMetaData(options);
         const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
         const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
         const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
@@ -147,6 +136,12 @@ export default class Container implements ContainerType {
         return this.handlerMap.get(name);
     }
 
+    public hasValue(options: Partial<InjectableDefinition>): boolean {
+        const { id } = this.getDefinedMetaData(options);
+        const md = this.getDefinition(id);
+        return !!md && !isUndefined(md.value);
+    }
+
     protected getValue(md: InjectableMetadata) {
         if (!isUndefined(md.value)) {
             return md.value;
@@ -181,6 +176,29 @@ export default class Container implements ContainerType {
             return this.registry.get(md[MAP_TYPE]);
         }
         return md;
+    }
+
+    private getDefinedMetaData(options: Partial<InjectableDefinition>): {
+        type: Constructable,
+        id: Identifier,
+        scope: ScopeEnum
+    } {
+        let type = options.type;
+        if (!type) {
+            if (options.id && isClass(options.id)) {
+                type = options.id as Constructable;
+            }
+        }
+
+        if (!type) {
+            throw new NoTypeError('type is required');
+        }
+
+        const targetMd = (getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType) || {};
+        const id = targetMd.id ?? options.id ?? type;
+        const scope = targetMd.scope ?? options.scope ?? ScopeEnum.SINGLETON;
+
+        return { type, id, scope };
     }
 
     private resolveParams(clazz: any, args?: ReflectMetadataType[]): any[] {
