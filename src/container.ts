@@ -59,7 +59,9 @@ export default class Container implements ContainerType {
         await instance[md.initMethod!]?.();
         return instance;
     }
-
+    public setClass(ClassType: Identifier) {
+        this.set({ id: ClassType })
+    }
     public set(options: Partial<InjectableDefinition>) {
         if (options.id && !isUndefined(options.value)) {
             const md: InjectableMetadata = {
