@@ -179,9 +179,9 @@ export default class Container implements ContainerType {
     }
 
     private getDefinedMetaData(options: Partial<InjectableDefinition>): {
-        type: Constructable,
-        id: Identifier,
-        scope: ScopeEnum
+        type: Constructable;
+        id: Identifier;
+        scope: ScopeEnum;
     } {
         let type = options.type;
         if (!type) {
@@ -248,7 +248,7 @@ export default class Container implements ContainerType {
     private handleProps(instance: any, props: ReflectMetadataType[]) {
         props.forEach(prop => {
             instance[prop.propertyName!] = prop.handler
-                ? this.resolveHandler(prop.handler, prop.id, instance)
+                ? this.resolveHandler(prop.handler, prop.id)
                 : this.get(prop.id);
         });
     }
@@ -257,7 +257,7 @@ export default class Container implements ContainerType {
         await Promise.all(
             props.map(async prop => {
                 instance[prop.propertyName!] = prop.handler
-                    ? await this.resolveHandler(prop.handler, prop.id, instance)
+                    ? await this.resolveHandler(prop.handler, prop.id)
                     : await this.getAsync(prop.id);
             })
         );
@@ -280,12 +280,12 @@ export default class Container implements ContainerType {
         });
     }
 
-    private resolveHandler(handlerName: string, id?: Identifier, instance?: any): any {
+    private resolveHandler(handlerName: string, id?: Identifier): any {
         const handler = this.getHandler(handlerName);
 
         if (!handler) {
             throw new NoHandlerError(handlerName);
         }
-        return handler(id, instance);
+        return handler(id, this);
     }
 }
