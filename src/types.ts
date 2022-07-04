@@ -1,6 +1,6 @@
 export type Constructable<T = unknown> = new (...args: any[]) => T;
 export type AbstractConstructable<T> = NewableFunction & { prototype: T };
-export type Identifier<T = unknown> = AbstractConstructable<T> | Constructable<T> | string;
+export type Identifier<T = unknown> = AbstractConstructable<T> | Constructable<T> | string | symbol;
 
 export enum ScopeEnum {
     SINGLETON = 'singleton',
@@ -24,6 +24,7 @@ export interface InjectableDefinition<T = unknown> {
      * By default the registered classes are only instantiated when they are requested from the container.
      */
     eager?: boolean;
+    factory?: CallableFunction;
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
@@ -37,7 +38,7 @@ export interface ReflectMetadataType {
     scope?: ScopeEnum;
     index?: number;
     propertyName?: string | symbol;
-    handler?: string;
+    handler?: string | symbol;
 }
 
 export interface ContainerType {
@@ -51,4 +52,8 @@ export interface ContainerType {
     getHandler(name: string): HandlerFunction | undefined;
 }
 
-export type HandlerFunction = (handlerKey: any, instance?: any) => any;
+/**
+ * A function that is used to handle a property
+ * last parameter is the instance of the Container
+ */
+export type HandlerFunction = CallableFunction;
