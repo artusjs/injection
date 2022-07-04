@@ -67,7 +67,7 @@ export function addTag(tag: string, target: any) {
         tags = [];
         Reflect.defineMetadata(CLASS_TAG, tags, target);
     }
-    tags.push(tag);
+    !tags.includes(tag) && tags.push(tag);
 }
 
 export function isClass(clazz: any) {
