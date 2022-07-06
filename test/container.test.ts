@@ -44,7 +44,7 @@ describe('container', () => {
         expect(person.email).toBe('artus@artusjs.com');
     });
 
-    it('should set throw error without value or type', () => {
+    it('should set throw error without value or type or factory', () => {
         expect(() => {
             container.set({ id: 'hello' });
         }).toThrow('type is required');
@@ -270,5 +270,60 @@ describe('hasValue', () => {
         // set { id: clazz, value: value }
         container.set({ id: ClassA, value: new ClassA('foo') });
         expect(container.hasValue({ id: ClassA })).toBeTruthy();
+    });
+});
+
+describe('container#factory', () => {
+    let container: Container;
+    beforeAll(() => {
+        container = new Container('factory');
+    });
+
+    it('should set not throw error with factory and no type', () => {
+        expect(() => {
+            container.set({ id: 'demo', factory: () => {} });
+        }).not.toThrow();
+    });
+    it('should set not throw error with factory and type', () => {
+        expect(() => {
+            container.set({ factory: () => {}, type: Foo });
+        }).not.toThrow();
+    });
+
+    it('should set throw error with factory and no id', () => {
+        expect(() => {
+            container.set({ factory: () => {} });
+        }).toThrow('id is required');
+    });
+
+    it('should set throw error when factory is not function', () => {
+        expect(() => {
+            container.set({ factory: {} as any, id: 'noFunction' });
+        }).toThrow('factory option must be function');
+    });
+
+    it('should use factory instance', async () => {
+        container.set({
+            id: 'hello',
+            factory: () => {
+                return 'world';
+            },
+        });
+        container.set({
+            id: 'asyncHello',
+            factory: () => {
+                return Promise.resolve('world');
+            },
+        });
+
+        expect(container.get('hello')).toBe('world');
+        expect(await container.getAsync('asyncHello')).toBe('world');
+    });
+
+    it('should priority use factory when factory and type all provide', () => {
+        container.set({ factory: () => ({ hello: 'world' }), type: Phone });
+        const phone = container.get(Phone);
+        expect(phone).toEqual({ hello: 'world' });
+        expect(phone).not.toBeInstanceOf(Phone);
     });
 });

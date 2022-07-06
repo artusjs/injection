@@ -2,14 +2,23 @@ import { ReflectMetadataType } from './types';
 import { CLASS_TAG } from './constant';
 const functionPrototype = Object.getPrototypeOf(Function);
 
-export function getMetadata(metadataKey: string | symbol, target: any, propertyKey?: string | symbol): ReflectMetadataType | ReflectMetadataType[] {
+export function getMetadata(
+    metadataKey: string | symbol,
+    target: any,
+    propertyKey?: string | symbol
+): ReflectMetadataType | ReflectMetadataType[] {
     if (propertyKey) {
         return Reflect.getOwnMetadata(metadataKey, target, propertyKey);
     }
     return Reflect.getOwnMetadata(metadataKey, target);
 }
 
-export function setMetadata(metadataKey: string | symbol, value: ReflectMetadataType | ReflectMetadataType[], target: any, propertyKey?: string | symbol) {
+export function setMetadata(
+    metadataKey: string | symbol,
+    value: ReflectMetadataType | ReflectMetadataType[],
+    target: any,
+    propertyKey?: string | symbol
+) {
     if (propertyKey) {
         Reflect.defineMetadata(metadataKey, value, target, propertyKey);
     } else {
@@ -19,12 +28,16 @@ export function setMetadata(metadataKey: string | symbol, value: ReflectMetadata
 
 /**
  * recursive get class and super class metadata
- * @param metadataKey 
- * @param target 
- * @param propertyKey 
- * @returns 
+ * @param metadataKey
+ * @param target
+ * @param propertyKey
+ * @returns
  */
-export function recursiveGetMetadata(metadataKey: any, target: any, propertyKey?: string | symbol): ReflectMetadataType[] {
+export function recursiveGetMetadata(
+    metadataKey: any,
+    target: any,
+    propertyKey?: string | symbol
+): ReflectMetadataType[] {
     let metadatas: any[] = [];
     const metadata = getMetadata(metadataKey, target, propertyKey);
     if (metadata) {
@@ -44,8 +57,8 @@ export function recursiveGetMetadata(metadataKey: any, target: any, propertyKey?
 
 /**
  * get constructor parameter types
- * @param clazz 
- * @returns 
+ * @param clazz
+ * @returns
  */
 export function getParamMetadata(clazz) {
     return Reflect.getMetadata('design:paramtypes', clazz);
@@ -53,9 +66,9 @@ export function getParamMetadata(clazz) {
 
 /**
  * get the property type
- * @param clazz 
- * @param property 
- * @returns 
+ * @param clazz
+ * @param property
+ * @returns
  */
 export function getDesignTypeMetadata(clazz: any, property: string | symbol) {
     return Reflect.getMetadata('design:type', clazz, property);
@@ -80,9 +93,7 @@ export function isClass(clazz: any) {
     return (
         fnStr.substring(0, 5) === 'class' ||
         Boolean(~fnStr.indexOf('classCallCheck(')) ||
-        Boolean(
-            ~fnStr.indexOf('TypeError("Cannot call a class as a function")')
-        )
+        Boolean(~fnStr.indexOf('TypeError("Cannot call a class as a function")'))
     );
 }
 
@@ -98,6 +109,9 @@ export function isObject(value) {
     return typeof value === 'object';
 }
 
+export function isFunction(value) {
+    return typeof value === 'function';
+}
 
 export function isPrimitiveFunction(value) {
     return ['String', 'Boolean', 'Number', 'Object'].includes(value.name);
