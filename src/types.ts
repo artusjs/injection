@@ -24,7 +24,7 @@ export interface InjectableDefinition<T = unknown> {
      * By default the registered classes are only instantiated when they are requested from the container.
      */
   eager?: boolean;
-  factory?: CallableFunction;
+  factory?: (id: Identifier, container?: ContainerType) => any;
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
@@ -48,8 +48,10 @@ export interface ContainerType {
   getDefinition(id: Identifier): InjectableMetadata | undefined;
   getInjectableByTag(tag: string): any[];
   getByTag(tag: string): any[];
-  registerHandler(name: string, handler: HandlerFunction): void;
-  getHandler(name: string): HandlerFunction | undefined;
+  getByTagAsync(tag: string): Promise<any[]>;
+  registerHandler(name: string | symbol, handler: HandlerFunction): void;
+  getHandler(name: string | symbol): HandlerFunction | undefined;
+  hasValue(options: Partial<InjectableDefinition>): boolean;
 }
 
 /**
