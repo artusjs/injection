@@ -3,19 +3,18 @@ import 'reflect-metadata';
 
 
 describe('init decorator', () => {
-    it('should throw can not inject error', () => {
-        class Demo {
-            // @ts-ignore
-            public id: number;
+  it('should throw can not inject error', () => {
+    class Demo {
+      public id!: number;
 
-            @Init()
-            init1() {
-                this.id = 123;
-            }
-        }
+      @Init()
+      init1() {
+        this.id = 123;
+      }
+    }
 
-        const md = Reflect.getOwnMetadata(CLASS_ASYNC_INIT_METHOD, Demo);
-        expect(md).toBeDefined();
-        expect(md.propertyName).toBe('init1');
-    });
+    const md = Reflect.getOwnMetadata(CLASS_ASYNC_INIT_METHOD, Demo);
+    expect(md).toBeDefined();
+    expect(md.propertyName).toBe('init1');
+  });
 });

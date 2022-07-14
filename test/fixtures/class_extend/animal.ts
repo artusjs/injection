@@ -1,7 +1,6 @@
-import { Inject } from '../../../src'
+import { Inject } from '../../../src';
 
 export class Animal {
-    @Inject('planet')
-    //@ts-ignore
-    public planet: string;
+  @Inject('planet')
+  public planet!: string;
 }

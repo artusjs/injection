@@ -4,12 +4,12 @@ import { Config } from './config';
 export { CONFIG_ALL } from './config';
 
 export class HandlerDemo {
-    @Config()
+  @Config()
     config: Record<string, any>;
 
-    id: string;
+  id: string;
 
-    constructor(@Config('id') id: string) {
-        this.id = id;
-    }
+  constructor(@Config('id') id: string) {
+    this.id = id;
+  }
 }
