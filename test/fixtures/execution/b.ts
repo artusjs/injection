@@ -4,16 +4,14 @@ let count = 1;
 
 @Injectable({
   id: 'exec_b',
-  scope: ScopeEnum.EXECUTION
+  scope: ScopeEnum.EXECUTION,
 })
 export default class ExecutionClazzB {
-  id: number = 0;
-  
-  constructor() {}
+  id = 0;
 
   @Init()
   async init(): Promise<void> {
-    return new Promise((resolve, _) => { 
+    return new Promise((resolve, _) => {
       setTimeout(() => {
         this.id = count++;
         resolve();

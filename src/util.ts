@@ -3,27 +3,27 @@ import { CLASS_TAG } from './constant';
 const functionPrototype = Object.getPrototypeOf(Function);
 
 export function getMetadata(
-    metadataKey: string | symbol,
-    target: any,
-    propertyKey?: string | symbol
+  metadataKey: string | symbol,
+  target: any,
+  propertyKey?: string | symbol,
 ): ReflectMetadataType | ReflectMetadataType[] {
-    if (propertyKey) {
-        return Reflect.getOwnMetadata(metadataKey, target, propertyKey);
-    }
-    return Reflect.getOwnMetadata(metadataKey, target);
+  if (propertyKey) {
+    return Reflect.getOwnMetadata(metadataKey, target, propertyKey);
+  }
+  return Reflect.getOwnMetadata(metadataKey, target);
 }
 
 export function setMetadata(
-    metadataKey: string | symbol,
-    value: ReflectMetadataType | ReflectMetadataType[],
-    target: any,
-    propertyKey?: string | symbol
+  metadataKey: string | symbol,
+  value: ReflectMetadataType | ReflectMetadataType[],
+  target: any,
+  propertyKey?: string | symbol,
 ) {
-    if (propertyKey) {
-        Reflect.defineMetadata(metadataKey, value, target, propertyKey);
-    } else {
-        Reflect.defineMetadata(metadataKey, value, target);
-    }
+  if (propertyKey) {
+    Reflect.defineMetadata(metadataKey, value, target, propertyKey);
+  } else {
+    Reflect.defineMetadata(metadataKey, value, target);
+  }
 }
 
 /**
@@ -34,25 +34,25 @@ export function setMetadata(
  * @returns
  */
 export function recursiveGetMetadata(
-    metadataKey: any,
-    target: any,
-    propertyKey?: string | symbol
+  metadataKey: any,
+  target: any,
+  propertyKey?: string | symbol,
 ): ReflectMetadataType[] {
-    let metadatas: any[] = [];
-    const metadata = getMetadata(metadataKey, target, propertyKey);
-    if (metadata) {
-        metadatas = metadatas.concat(metadata);
-    }
+  let metadatas: any[] = [];
+  const metadata = getMetadata(metadataKey, target, propertyKey);
+  if (metadata) {
+    metadatas = metadatas.concat(metadata);
+  }
 
-    let proto = Object.getPrototypeOf(target);
-    if (proto !== null && proto !== functionPrototype) {
-        const metadata = getMetadata(metadataKey, proto, propertyKey);
-        if (metadata) {
-            metadatas = metadatas.concat(metadata);
-        }
-        proto = Object.getPrototypeOf(proto);
+  let proto = Object.getPrototypeOf(target);
+  if (proto !== null && proto !== functionPrototype) {
+    const metadata = getMetadata(metadataKey, proto, propertyKey);
+    if (metadata) {
+      metadatas = metadatas.concat(metadata);
     }
-    return metadatas;
+    proto = Object.getPrototypeOf(proto);
+  }
+  return metadatas;
 }
 
 /**
@@ -61,7 +61,7 @@ export function recursiveGetMetadata(
  * @returns
  */
 export function getParamMetadata(clazz) {
-    return Reflect.getMetadata('design:paramtypes', clazz);
+  return Reflect.getMetadata('design:paramtypes', clazz);
 }
 
 /**
@@ -71,48 +71,48 @@ export function getParamMetadata(clazz) {
  * @returns
  */
 export function getDesignTypeMetadata(clazz: any, property: string | symbol) {
-    return Reflect.getMetadata('design:type', clazz, property);
+  return Reflect.getMetadata('design:type', clazz, property);
 }
 
 export function addTag(tag: string, target: any) {
-    let tags = Reflect.getOwnMetadata(CLASS_TAG, target);
-    if (!tags) {
-        tags = [];
-        Reflect.defineMetadata(CLASS_TAG, tags, target);
-    }
-    tags.push(tag);
+  let tags = Reflect.getOwnMetadata(CLASS_TAG, target);
+  if (!tags) {
+    tags = [];
+    Reflect.defineMetadata(CLASS_TAG, tags, target);
+  }
+  tags.push(tag);
 }
 
 export function isClass(clazz: any) {
-    if (typeof clazz !== 'function') {
-        return false;
-    }
+  if (typeof clazz !== 'function') {
+    return false;
+  }
 
-    const fnStr = Function.prototype.toString.call(clazz);
+  const fnStr = Function.prototype.toString.call(clazz);
 
-    return (
-        fnStr.substring(0, 5) === 'class' ||
+  return (
+    fnStr.substring(0, 5) === 'class' ||
         Boolean(~fnStr.indexOf('classCallCheck(')) ||
         Boolean(~fnStr.indexOf('TypeError("Cannot call a class as a function")'))
-    );
+  );
 }
 
 export function isNumber(value) {
-    return typeof value === 'number';
+  return typeof value === 'number';
 }
 
 export function isUndefined(value) {
-    return typeof value === 'undefined';
+  return typeof value === 'undefined';
 }
 
 export function isObject(value) {
-    return typeof value === 'object';
+  return typeof value === 'object';
 }
 
 export function isFunction(value) {
-    return typeof value === 'function';
+  return typeof value === 'function';
 }
 
 export function isPrimitiveFunction(value) {
-    return ['String', 'Boolean', 'Number', 'Object'].includes(value.name);
+  return ['String', 'Boolean', 'Number', 'Object'].includes(value.name);
 }

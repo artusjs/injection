@@ -4,7 +4,7 @@ let count = 1;
 
 @Injectable({
   id: 'exec_a',
-  scope: ScopeEnum.EXECUTION
+  scope: ScopeEnum.EXECUTION,
 })
 export default class ExecutionClazzA {
   id: number;

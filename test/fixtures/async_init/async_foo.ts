@@ -1,11 +1,10 @@
 import { Init } from '../../../src';
 
 export class AsyncFoo {
-    // @ts-ignore
-    public age: number;
+  public age!: number;
 
-    @Init()
-    async init() {
-        this.age = await Promise.resolve(4);
-    }
+  @Init()
+  async init() {
+    this.age = await Promise.resolve(4);
+  }
 }

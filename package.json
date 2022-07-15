@@ -10,7 +10,10 @@
   "scripts": {
     "build": "tsc -p ./tsconfig.build.json",
     "prepublish": "npm run build",
-    "test": "jest --coverage --config ./jest.config.js"
+    "test": "jest --coverage --config ./jest.config.js",
+    "ci": "npm run lint && npm run test",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "lint": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
@@ -23,10 +26,12 @@
   },
   "homepage": "https://github.com/artusjs/injection#readme",
   "devDependencies": {
+    "@artus/eslint-config-artus": "^0.0.1",
     "@artus/tsconfig": "0.0.1",
     "@types/jest": "^27.4.1",
     "@types/node": "^17.0.21",
     "eslint": "^7.32.0",
+    "eslint-plugin-import": "^2.26.0",
     "jest": "^27.5.1",
     "reflect-metadata": "^0.1.13",
     "ts-jest": "^27.1.3",
