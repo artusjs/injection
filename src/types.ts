@@ -40,6 +40,8 @@ export interface ReflectMetadataType {
   scope?: ScopeEnum;
   index?: number;
   lazy?: boolean;
+  defaultValue?: boolean;
+  noThrow?: boolean;
   propertyName?: string | symbol;
   handler?: string | symbol;
 }

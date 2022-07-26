@@ -214,7 +214,7 @@ export default class Container implements ContainerType {
 
       params[arg.index!] = arg.handler
         ? this.resolveHandler(arg.handler, arg.id)
-        : this.get(arg.id);
+        : this.get(arg.id, { noThrow: arg.noThrow, defaultValue: arg.defaultValue });
     });
     return params;
   }
@@ -224,7 +224,7 @@ export default class Container implements ContainerType {
       const creator = () => {
         return prop.handler
           ? this.resolveHandler(prop.handler, prop.id)
-          : this.get(prop.id);
+          : this.get(prop.id, { noThrow: prop.noThrow, defaultValue: prop.defaultValue });
       };
 
       if (!isLazy) {

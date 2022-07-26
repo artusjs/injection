@@ -12,6 +12,9 @@ export class Person {
   @Inject('config.email')
   public email!: string;
 
+  @Inject('unexist', { noThrow: true, defaultValue: 'unexist' })
+  public unexist!: string;
+
   sayHello() {
     console.log(this.phone.numbs, this.email);
   }
