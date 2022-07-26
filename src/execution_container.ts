@@ -44,7 +44,7 @@ export default class ExecutionContainer extends Container {
     return this.ctx;
   }
 
-  public getHandler(name: string): HandlerFunction | undefined {
+  public getHandler(name: string | symbol): HandlerFunction | undefined {
     return this.handlerMap.get(name) ?? this.parent.getHandler(name);
   }
 
