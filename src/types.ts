@@ -11,18 +11,20 @@ export enum ScopeEnum {
 export interface InjectableOption {
   id?: Identifier;
   scope?: ScopeEnum;
+  lazy?: boolean;
 }
 
 export interface InjectableDefinition<T = unknown> {
   id: Identifier;
   scope: ScopeEnum;
+  lazy: boolean;
   type?: Constructable<T> | null;
   value?: unknown;
   path?: string;
   /**
-     * Indicates whether a new instance should be created as soon as the class is registered.
-     * By default the registered classes are only instantiated when they are requested from the container.
-     */
+   * Indicates whether a new instance should be created as soon as the class is registered.
+   * By default the registered classes are only instantiated when they are requested from the container.
+   */
   eager?: boolean;
   factory?: (id: Identifier, container?: ContainerType) => any;
 }
@@ -37,13 +39,13 @@ export interface ReflectMetadataType {
   id: Identifier;
   scope?: ScopeEnum;
   index?: number;
+  lazy?: boolean;
   propertyName?: string | symbol;
   handler?: string | symbol;
 }
 
 export interface ContainerType {
   get<T>(id: Identifier<T>): T;
-  getAsync<T>(id: Identifier<T>): Promise<T>;
   set(options: Partial<InjectableDefinition>): this;
   getDefinition(id: Identifier): InjectableMetadata | undefined;
   getInjectableByTag(tag: string): any[];

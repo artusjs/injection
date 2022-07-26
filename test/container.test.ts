@@ -3,15 +3,14 @@ import { Container, ExecutionContainer, ScopeEnum, addTag } from '../src';
 import { Phone } from './fixtures/class_inject/phone';
 import { Person } from './fixtures/class_inject/person';
 import { Foo } from './fixtures/constructor_arg/foo';
-import { Bar } from './fixtures/async_init/bar';
-import { AsyncFoo } from './fixtures/async_init/async_foo';
 import { Animal } from './fixtures/class_extend/animal';
 import { Cat } from './fixtures/class_extend/cat';
 import ExecutionClazzA from './fixtures/execution/a';
-import ExecutionClazzB from './fixtures/execution/b';
 import { HandlerDemo, CONFIG_ALL } from './fixtures/handler_resolve/handler';
 import ClassA from './fixtures/value/a';
 import ClassB from './fixtures/value/b';
+import LazyBClass from './fixtures/lazy/lazy_b';
+import LazyAClass from './fixtures/lazy/lazy_a';
 
 const ctx = {};
 const container = new Container('default');
@@ -25,15 +24,11 @@ describe('container', () => {
     container.set({ type: Phone });
     container.set({ id: Person });
     container.set({ id: Foo, scope: ScopeEnum.EXECUTION });
-    container.set({ id: Bar, scope: ScopeEnum.TRANSIENT });
-    container.set({ id: AsyncFoo });
     container.set({ id: Cat });
     container.set({ id: Animal });
     container.set({ id: 'emptyStr', value: '' });
     container.set({ id: 'nullObj', value: null });
-
     container.set({ type: ExecutionClazzA });
-    container.set({ type: ExecutionClazzB });
   });
 
   it('should get instance from container', () => {
@@ -48,15 +43,6 @@ describe('container', () => {
     expect(() => {
       container.set({ id: 'hello' });
     }).toThrow('type is required');
-  });
-
-  it('should get instance with async init method', async () => {
-    const bar = await container.getAsync(Bar);
-    expect(bar).toBeDefined();
-    expect(bar.id).toBe(123);
-    expect(bar.foo).toBeDefined();
-    expect(bar.foo).toBeInstanceOf(AsyncFoo);
-    expect(bar.foo.age).toBe(4);
   });
 
   it('should inject ok when super class has inject properties', () => {
@@ -84,10 +70,6 @@ describe('container', () => {
     expect(() => {
       container.get('config.emails');
     }).toThrowError('identifier was not found in the container');
-
-    expect(container.getAsync('config.emails')).rejects.toThrow(
-      'identifier was not found in the container',
-    );
   });
 
   describe('ExecutionContainer', () => {
@@ -114,37 +96,10 @@ describe('container', () => {
       expect(instanceA === anotherInstanceA).toBeFalsy();
     });
 
-    it('should get instance with async init method', async () => {
-      const instanceB = await execContainer.getAsync(ExecutionClazzB);
-      const sameInstanceB = await execContainer.getAsync(ExecutionClazzB);
-      const sameInstanceBById = await execContainer.getAsync<ExecutionClazzB>('exec_b');
-
-      const anotherExecContainer = new ExecutionContainer(ctx, container);
-      const anotherInstanceB = await anotherExecContainer.getAsync(ExecutionClazzB);
-
-      expect(instanceB).toBeDefined();
-      expect(sameInstanceB).toBeDefined();
-      expect(sameInstanceBById).toBeDefined();
-      expect(anotherInstanceB).toBeDefined();
-
-      expect(instanceB.id).toBe(1);
-      expect(sameInstanceB.id).toBe(1);
-      expect(sameInstanceBById.id).toBe(1);
-      expect(anotherInstanceB.id).toBe(2);
-
-      expect(instanceB === sameInstanceB).toBeTruthy();
-      expect(instanceB === sameInstanceBById).toBeTruthy();
-      expect(instanceB === anotherInstanceB).toBeFalsy();
-    });
-
     it('should throw error when no find definition with identifier', async () => {
       expect(() => {
         execContainer.get('config.emails');
       }).toThrowError('identifier was not found in the container');
-
-      expect(execContainer.getAsync('config.emails')).rejects.toThrow(
-        'identifier was not found in the container',
-      );
     });
   });
 });
@@ -175,18 +130,6 @@ describe('container#tag', () => {
       container.set({ type: Foo });
       container.set({ id: 'config.phone', value: '12345678901' });
       const instances = container.getByTag('controller');
-
-      expect(instances.length).toBeGreaterThan(0);
-      expect(instances[0]).toBeInstanceOf(Foo);
-    });
-  });
-
-  describe('getByTagAsync', () => {
-    it('should get instances by tag', async () => {
-      const container = new Container('container#tag');
-      container.set({ type: Foo });
-      container.set({ id: 'config.phone', value: '12345678901' });
-      const instances = await container.getByTagAsync('controller');
 
       expect(instances.length).toBeGreaterThan(0);
       expect(instances[0]).toBeInstanceOf(Foo);
@@ -282,20 +225,20 @@ describe('container#factory', () => {
   it('should set not throw error with factory and no type', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      container.set({ id: 'demo', factory: () => {} });
+      container.set({ id: 'demo', factory: () => { } });
     }).not.toThrow();
   });
   it('should set not throw error with factory and type', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      container.set({ factory: () => {}, type: Foo });
+      container.set({ factory: () => { }, type: Foo });
     }).not.toThrow();
   });
 
   it('should set throw error with factory and no id', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      container.set({ factory: () => {} });
+      container.set({ factory: () => { } });
     }).toThrow('id is required');
   });
 
@@ -305,22 +248,14 @@ describe('container#factory', () => {
     }).toThrow('factory option must be function');
   });
 
-  it('should use factory instance', async () => {
+  it('should use factory instance', () => {
     container.set({
       id: 'hello',
       factory: () => {
         return 'world';
       },
     });
-    container.set({
-      id: 'asyncHello',
-      factory: () => {
-        return Promise.resolve('world');
-      },
-    });
-
     expect(container.get('hello')).toBe('world');
-    expect(await container.getAsync('asyncHello')).toBe('world');
   });
 
   it('should priority use factory when factory and type all provide', () => {
@@ -328,5 +263,18 @@ describe('container#factory', () => {
     const phone = container.get(Phone);
     expect(phone).toEqual({ hello: 'world' });
     expect(phone).not.toBeInstanceOf(Phone);
+  });
+});
+
+describe('container#lazy', () => {
+  it('should get instance ok', () => {
+    const container = new Container('lazy');
+    container.set({ type: LazyAClass });
+    const instance = container.get(LazyAClass);
+    expect(instance).toBeInstanceOf(LazyAClass);
+    container.set({ type: LazyBClass });
+    expect(instance.lazyB).toBeDefined();
+    expect(instance.lazyB).toBeInstanceOf(LazyBClass);
+    expect(instance.lazyB === instance.lazyB).toBeTruthy();
   });
 });
