@@ -3,6 +3,6 @@ import { Inject, Injectable } from '../../../src';
 
 @Injectable({ lazy: true })
 export default class LazyAClass {
-    @Inject()
+  @Inject()
     lazyB!: LazyB;
 }

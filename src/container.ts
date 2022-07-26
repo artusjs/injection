@@ -6,12 +6,12 @@ import {
   CLASS_TAG,
   INJECT_HANDLER_ARGS,
   INJECT_HANDLER_PROPS,
-  MAP_TYPE,
-  LAZY_PROP
+  LAZY_PROP,
 } from './constant';
 import {
   Constructable,
   ContainerType,
+  GetValueOptions,
   Identifier,
   InjectableMetadata,
   InjectableDefinition,
@@ -51,9 +51,12 @@ export default class Container implements ContainerType {
     this.handlerMap = new Map();
   }
 
-  public get<T = unknown>(id: Identifier<T>): T {
+  public get<T = unknown>(id: Identifier<T>, options: GetValueOptions = {}): T {
     const md = this.getDefinition(id);
     if (!md) {
+      if (options.noThrow) {
+        return options.defaultValue;
+      }
       throw new NotFoundError(id);
     }
     return this.getValue(md);
@@ -86,7 +89,7 @@ export default class Container implements ContainerType {
       const handlerArgs = getMetadata(INJECT_HANDLER_ARGS, type) as ReflectMetadataType[];
       const handlerProps = recursiveGetMetadata(
         INJECT_HANDLER_PROPS,
-        type
+        type,
       ) as ReflectMetadataType[];
 
       md.constructorArgs = (args ?? []).concat(handlerArgs ?? []);
@@ -96,7 +99,6 @@ export default class Container implements ContainerType {
        * compatible with inject type identifier when identifier is string
        */
       if (md.id !== type) {
-        md[MAP_TYPE] = type;
         this.registry.set(type, md);
       }
 
@@ -223,7 +225,7 @@ export default class Container implements ContainerType {
         return prop.handler
           ? this.resolveHandler(prop.handler, prop.id)
           : this.get(prop.id);
-      }
+      };
 
       if (!isLazy) {
         instance[prop.propertyName!] = creator();

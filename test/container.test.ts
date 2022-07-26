@@ -66,10 +66,17 @@ describe('container', () => {
     expect(container.get('nullObj')).toBe(null);
   });
 
-  it('should throw error when no find definition with identifier', async () => {
+  it('should throw error when no find definition with identifier', () => {
     expect(() => {
       container.get('config.emails');
     }).toThrowError('identifier was not found in the container');
+  });
+
+  it('should not throw error when no find definition with identifier', () => {
+    expect(() => {
+      const value = container.get('config.emails', { noThrow: true, defaultValue: '' });
+      expect(value).toBe('');
+    }).not.toThrowError();
   });
 
   describe('ExecutionContainer', () => {

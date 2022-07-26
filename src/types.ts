@@ -50,7 +50,6 @@ export interface ContainerType {
   getDefinition(id: Identifier): InjectableMetadata | undefined;
   getInjectableByTag(tag: string): any[];
   getByTag(tag: string): any[];
-  getByTagAsync(tag: string): Promise<any[]>;
   registerHandler(name: string | symbol, handler: HandlerFunction): void;
   getHandler(name: string | symbol): HandlerFunction | undefined;
   hasValue(options: Partial<InjectableDefinition>): boolean;
@@ -61,3 +60,9 @@ export interface ContainerType {
  * last parameter is the instance of the Container
  */
 export type HandlerFunction = CallableFunction;
+
+
+export interface GetValueOptions {
+  noThrow?: boolean;
+  defaultValue?: any;
+}
