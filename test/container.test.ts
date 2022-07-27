@@ -37,7 +37,7 @@ describe('container', () => {
     expect(person.phone).toBeDefined();
     expect(person.phone).toBeInstanceOf(Phone);
     expect(person.email).toBe('artus@artusjs.com');
-    expect(person.unexist).toBe('unexist')
+    expect(person.unexist).toBe('unexist');
   });
 
   it('should set throw error without value or type or factory', () => {
