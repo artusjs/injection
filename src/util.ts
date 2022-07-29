@@ -84,7 +84,7 @@ export function addTag(tag: string, target: any) {
 }
 
 export function isInjectable(target: any) {
-  return Reflect.hasMetadata(CLASS_CONSTRUCTOR, target);
+  return Reflect.hasOwnMetadata(CLASS_CONSTRUCTOR, target);
 }
 
 export function isClass(clazz: any) {
