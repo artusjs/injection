@@ -7,17 +7,21 @@ export enum ScopeEnum {
   EXECUTION = 'execution',
   TRANSIENT = 'transient',
 }
+export interface InjectOptions {
+  id?: Identifier;
+  noThrow?: boolean;
+  defaultValue?: any;
+  lazy?: boolean;
+}
 
 export interface InjectableOption {
   id?: Identifier;
   scope?: ScopeEnum;
-  lazy?: boolean;
 }
 
 export interface InjectableDefinition<T = unknown> {
   id: Identifier;
   scope: ScopeEnum;
-  lazy: boolean;
   type?: Constructable<T> | null;
   value?: unknown;
   path?: string;
@@ -30,8 +34,8 @@ export interface InjectableDefinition<T = unknown> {
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
-  properties?: any[];
-  constructorArgs?: any[];
+  properties?: ReflectMetadataType[];
+  constructorArgs?: ReflectMetadataType[];
   initMethod?: string | symbol;
 }
 
@@ -62,9 +66,3 @@ export interface ContainerType {
  * last parameter is the instance of the Container
  */
 export type HandlerFunction = CallableFunction;
-
-
-export interface GetValueOptions {
-  noThrow?: boolean;
-  defaultValue?: any;
-}

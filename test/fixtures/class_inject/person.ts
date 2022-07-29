@@ -12,7 +12,7 @@ export class Person {
   @Inject('config.email')
   public email!: string;
 
-  @Inject('unexist', { noThrow: true, defaultValue: 'unexist' })
+  @Inject({ id: 'unexist', noThrow: true, defaultValue: 'unexist' })
   public unexist!: string;
 
   sayHello() {

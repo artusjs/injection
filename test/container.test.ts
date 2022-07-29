@@ -284,5 +284,6 @@ describe('container#lazy', () => {
     expect(instance.lazyB).toBeDefined();
     expect(instance.lazyB).toBeInstanceOf(LazyBClass);
     expect(instance.lazyB === instance.lazyB).toBeTruthy();
+    expect(instance.lazyB.name).toBe('lazyBClass');
   });
 });

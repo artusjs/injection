@@ -6,12 +6,12 @@ import {
   CLASS_TAG,
   INJECT_HANDLER_ARGS,
   INJECT_HANDLER_PROPS,
-  LAZY_PROP,
+  LAZY_HANDLER,
 } from './constant';
 import {
   Constructable,
   ContainerType,
-  GetValueOptions,
+  InjectOptions,
   Identifier,
   InjectableMetadata,
   InjectableDefinition,
@@ -36,6 +36,7 @@ import {
   NoIdentifierError,
   InjectionError,
 } from './error';
+import { lazyHandler } from './lazy_helper';
 
 export default class Container implements ContainerType {
   private registry: Map<Identifier, InjectableMetadata>;
@@ -49,9 +50,10 @@ export default class Container implements ContainerType {
     this.registry = new Map();
     this.tags = new Map();
     this.handlerMap = new Map();
+    this.registerHandler(LAZY_HANDLER, lazyHandler);
   }
 
-  public get<T = unknown>(id: Identifier<T>, options: GetValueOptions = {}): T {
+  public get<T = unknown>(id: Identifier<T>, options: InjectOptions = {}): T {
     const md = this.getDefinition(id);
     if (!md) {
       if (options.noThrow) {
@@ -68,19 +70,17 @@ export default class Container implements ContainerType {
         id: options.id,
         value: options.value,
         scope: options.scope ?? ScopeEnum.SINGLETON,
-        lazy: options.lazy ?? false,
       };
       this.registry.set(md.id, md);
       return this;
     }
 
-    const { type, id, scope, lazy } = this.getDefinedMetaData(options);
+    const { type, id, scope } = this.getDefinedMetaData(options);
     const md: InjectableMetadata = {
       ...options,
       id,
       type,
       scope,
-      lazy,
     };
     if (type) {
       const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
@@ -154,7 +154,7 @@ export default class Container implements ContainerType {
       const clazz = md.type!;
       const params = this.resolveParams(clazz, md.constructorArgs);
       value = new clazz(...params);
-      this.handleProps(value, md.properties ?? [], md.lazy);
+      this.handleProps(value, md.properties ?? []);
     }
 
     if (md.scope === ScopeEnum.SINGLETON) {
@@ -166,10 +166,9 @@ export default class Container implements ContainerType {
   private getDefinedMetaData(options: Partial<InjectableDefinition>): {
     id: Identifier;
     scope: ScopeEnum;
-    lazy: boolean;
     type?: Constructable | null;
   } {
-    let { type, id, scope = ScopeEnum.SINGLETON, factory, lazy = false } = options;
+    let { type, id, scope = ScopeEnum.SINGLETON, factory } = options;
     if (!type) {
       if (id && isClass(id)) {
         type = id as Constructable;
@@ -188,14 +187,13 @@ export default class Container implements ContainerType {
       const targetMd = (getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType) || {};
       id = targetMd.id ?? id ?? type;
       scope = targetMd.scope ?? scope;
-      lazy = targetMd.lazy ?? lazy;
     }
 
     if (!id && factory) {
       throw new NoIdentifierError(`injectable with factory option`);
     }
 
-    return { type, id: id!, scope, lazy };
+    return { type, id: id!, scope };
   }
 
   private resolveParams(clazz: any, args?: ReflectMetadataType[]): any[] {
@@ -219,29 +217,11 @@ export default class Container implements ContainerType {
     return params;
   }
 
-  private handleProps(instance: any, props: ReflectMetadataType[], isLazy: boolean) {
+  private handleProps(instance: any, props: ReflectMetadataType[]) {
     props.forEach(prop => {
-      const creator = () => {
-        return prop.handler
-          ? this.resolveHandler(prop.handler, prop.id)
-          : this.get(prop.id, { noThrow: prop.noThrow, defaultValue: prop.defaultValue });
-      };
-
-      if (!isLazy) {
-        instance[prop.propertyName!] = creator();
-        return;
-      }
-
-      const lazyProp = Symbol(LAZY_PROP);
-      Object.defineProperty(instance, prop.propertyName!, {
-        get() {
-          if (!this[lazyProp]) {
-            this[lazyProp] = creator();
-          }
-          return this[lazyProp];
-        },
-        enumerable: false,
-      });
+      instance[prop.propertyName!] = prop.handler
+        ? this.resolveHandler(prop.handler, prop.id)
+        : this.get(prop.id, { noThrow: prop.noThrow, defaultValue: prop.defaultValue });
     });
   }
 
