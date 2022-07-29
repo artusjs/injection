@@ -1,5 +1,5 @@
 import { ReflectMetadataType } from './types';
-import { CLASS_TAG } from './constant';
+import { CLASS_CONSTRUCTOR, CLASS_TAG } from './constant';
 const functionPrototype = Object.getPrototypeOf(Function);
 
 export function getMetadata(
@@ -81,6 +81,10 @@ export function addTag(tag: string, target: any) {
     Reflect.defineMetadata(CLASS_TAG, tags, target);
   }
   tags.push(tag);
+}
+
+export function isInjectable(target: any) {
+  return Reflect.hasMetadata(CLASS_CONSTRUCTOR, target);
 }
 
 export function isClass(clazz: any) {
