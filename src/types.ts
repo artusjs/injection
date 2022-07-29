@@ -7,6 +7,12 @@ export enum ScopeEnum {
   EXECUTION = 'execution',
   TRANSIENT = 'transient',
 }
+export interface InjectOptions {
+  id?: Identifier;
+  noThrow?: boolean;
+  defaultValue?: any;
+  lazy?: boolean;
+}
 
 export interface InjectableOption {
   id?: Identifier;
@@ -20,16 +26,16 @@ export interface InjectableDefinition<T = unknown> {
   value?: unknown;
   path?: string;
   /**
-     * Indicates whether a new instance should be created as soon as the class is registered.
-     * By default the registered classes are only instantiated when they are requested from the container.
-     */
+   * Indicates whether a new instance should be created as soon as the class is registered.
+   * By default the registered classes are only instantiated when they are requested from the container.
+   */
   eager?: boolean;
   factory?: (id: Identifier, container?: ContainerType) => any;
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
-  properties?: any[];
-  constructorArgs?: any[];
+  properties?: ReflectMetadataType[];
+  constructorArgs?: ReflectMetadataType[];
   initMethod?: string | symbol;
 }
 
@@ -37,18 +43,19 @@ export interface ReflectMetadataType {
   id: Identifier;
   scope?: ScopeEnum;
   index?: number;
+  lazy?: boolean;
+  defaultValue?: boolean;
+  noThrow?: boolean;
   propertyName?: string | symbol;
   handler?: string | symbol;
 }
 
 export interface ContainerType {
   get<T>(id: Identifier<T>): T;
-  getAsync<T>(id: Identifier<T>): Promise<T>;
   set(options: Partial<InjectableDefinition>): this;
   getDefinition(id: Identifier): InjectableMetadata | undefined;
   getInjectableByTag(tag: string): any[];
   getByTag(tag: string): any[];
-  getByTagAsync(tag: string): Promise<any[]>;
   registerHandler(name: string | symbol, handler: HandlerFunction): void;
   getHandler(name: string | symbol): HandlerFunction | undefined;
   hasValue(options: Partial<InjectableDefinition>): boolean;

@@ -14,7 +14,7 @@ export default class ExecutionContainer extends Container {
   }
 
   public get<T = unknown>(id: Identifier<T>): T {
-    const md = this.getMetadata(id) ?? this.parent.getDefinition(id);
+    const md = this.getDefinition(id) ?? this.parent.getDefinition(id);
     if (!md) {
       throw new NotFoundError(id);
     }
@@ -24,20 +24,6 @@ export default class ExecutionContainer extends Container {
       this.setValue(md, value);
     }
     return value;
-  }
-
-  public async getAsync<T = unknown>(id: Identifier<T>): Promise<T> {
-    const md = this.getMetadata(id) ?? this.parent.getDefinition(id);
-    if (!md) {
-      throw new NotFoundError(id);
-    }
-    const instance = await this.getValueAsync(md);
-
-    await instance[md.initMethod!]?.();
-    if (md.scope === ScopeEnum.EXECUTION) {
-      this.setValue(md, instance);
-    }
-    return instance;
   }
 
   public getCtx(): any {
