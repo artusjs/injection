@@ -70,8 +70,15 @@ export default class Container implements ContainerType {
         id: options.id,
         value: options.value,
         scope: options.scope ?? ScopeEnum.SINGLETON,
+        type: options.type
       };
       this.registry.set(md.id, md);
+      /**
+       * compatible with inject type identifier when identifier is string
+       */
+      if (md.type && md.id !== md.type) {
+        this.registry.set(md.type, md);
+      }
       return this;
     }
 
