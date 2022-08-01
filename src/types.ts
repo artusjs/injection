@@ -17,6 +17,7 @@ export interface InjectOptions {
 export interface InjectableOption {
   id?: Identifier;
   scope?: ScopeEnum;
+  lazy?: boolean;
 }
 
 export interface InjectableDefinition<T = unknown> {

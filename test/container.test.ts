@@ -9,6 +9,7 @@ import ExecutionClazzA from './fixtures/execution/a';
 import { HandlerDemo, CONFIG_ALL } from './fixtures/handler_resolve/handler';
 import ClassA from './fixtures/value/a';
 import ClassB from './fixtures/value/b';
+import LazyCClass from './fixtures/lazy/lazy_c';
 import LazyBClass from './fixtures/lazy/lazy_b';
 import LazyAClass from './fixtures/lazy/lazy_a';
 
@@ -285,5 +286,11 @@ describe('container#lazy', () => {
     expect(instance.lazyB).toBeInstanceOf(LazyBClass);
     expect(instance.lazyB === instance.lazyB).toBeTruthy();
     expect(instance.lazyB.name).toBe('lazyBClass');
+    container.set({ type: LazyCClass });
+    const instanceb = container.get(LazyBClass);
+    expect(instanceb.lazyC).toBeDefined();
+    expect(instanceb.lazyC).toBeInstanceOf(LazyCClass);
+    expect(instanceb.lazyC === instanceb.lazyC).toBeTruthy();
+    expect(instanceb.lazyC.name).toBe('lazyCClass');
   });
 });
