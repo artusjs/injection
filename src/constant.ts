@@ -16,4 +16,4 @@ export const INJECT_HANDLER_PROPS = Symbol.for('injection:handler_props');
 
 export const INJECT_HANDLER_ARGS = Symbol.for('injection:handler_args');
 
-export const LAZY_HANDLER = Symbol('injection:lazy_handler');
+export const LAZY_HANDLER = Symbol.for('injection:lazy_handler');
