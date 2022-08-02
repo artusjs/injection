@@ -70,7 +70,7 @@ export default class Container implements ContainerType {
         id: options.id,
         value: options.value,
         scope: options.scope ?? ScopeEnum.SINGLETON,
-        type: options.type
+        type: options.type,
       };
       this.registry.set(md.id, md);
       /**

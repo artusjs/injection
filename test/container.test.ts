@@ -68,7 +68,7 @@ describe('container', () => {
 
   it('should get value ok by type when register by string id and type', () => {
     const token = container.get('valueId');
-    expect(token).toBe('token')
+    expect(token).toBe('token');
     const token1 = container.get(Token);
     expect(token).toBe(token1);
   });
