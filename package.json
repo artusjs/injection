@@ -12,8 +12,8 @@
     "prepublish": "npm run build",
     "test": "jest --coverage --config ./jest.config.js",
     "ci": "npm run lint && npm run test",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "lint": "eslint . --ext .ts"
+    "lint:fix": "eslint . --fix",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",

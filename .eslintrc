@@ -15,7 +15,8 @@
   "overrides": [
     {
       "files": [
-        "test/**/*"
+        "{src,test}/**/*.ts",
+        "jest.config.js"
       ],
       "rules": {
         "@typescript-eslint/no-var-requires": "off"
