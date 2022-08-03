@@ -1,17 +1,11 @@
 {
-    "extends": "@artus/tsconfig",
-    "compilerOptions": {
-        "outDir": "./lib",
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "strictPropertyInitialization": true,
-        "types": [
-            "node",
-            "jest",
-            "reflect-metadata"
-        ],
-    },
-    "exclude": [
-        "lib"
-    ],
+  "extends": "@artus/tsconfig",
+  "compilerOptions": {
+    "outDir": "./lib",
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "types": ["node", "jest", "reflect-metadata"]
+  },
+  "exclude": ["lib"]
 }
