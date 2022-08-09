@@ -12,6 +12,7 @@ import ClassB from './fixtures/value/b';
 import LazyCClass from './fixtures/lazy/lazy_c';
 import LazyBClass from './fixtures/lazy/lazy_b';
 import LazyAClass from './fixtures/lazy/lazy_a';
+import LazyDClass from './fixtures/lazy/lazy_d';
 
 const ctx = {};
 const container = new Container('default');
@@ -282,10 +283,13 @@ describe('container#lazy', () => {
     const instance = container.get(LazyAClass);
     expect(instance).toBeInstanceOf(LazyAClass);
     container.set({ type: LazyBClass });
+    container.set({ type: LazyDClass });
     expect(instance.lazyB).toBeDefined();
     expect(instance.lazyB).toBeInstanceOf(LazyBClass);
     expect(instance.lazyB === instance.lazyB).toBeTruthy();
     expect(instance.lazyB.name).toBe('lazyBClass');
+    expect(instance.lazyB.testLazyD()).toBe('a,b');
+
     container.set({ type: LazyCClass });
     const instanceb = container.get(LazyBClass);
     expect(instanceb.lazyC).toBeDefined();

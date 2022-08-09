@@ -7,9 +7,12 @@ function createHandler<T extends Object>(delayedObject: () => T): ProxyHandler<T
   const handler: ProxyHandler<T> = {};
   const install = (name: keyof ProxyHandler<T>) => {
     handler[name] = (...args: any[]) => {
-      args[0] = delayedObject();
+      const instance = args[0] = delayedObject();
       const method = Reflect[name];
-      return (method as any)(...args);
+      const result = (method as any)(...args);
+      return typeof result === 'function'
+        ? result.bind(instance)
+        : result;
     };
   };
   reflectMethods.forEach(install);
