@@ -37,14 +37,12 @@ export interface InjectableDefinition<T = unknown> {
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
   properties?: ReflectMetadataType[];
   constructorArgs?: ReflectMetadataType[];
-  initMethod?: string | symbol;
 }
 
 export interface ReflectMetadataType {
   id: Identifier;
   scope?: ScopeEnum;
   index?: number;
-  lazy?: boolean;
   defaultValue?: boolean;
   noThrow?: boolean;
   propertyName?: string | symbol;

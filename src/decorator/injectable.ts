@@ -4,7 +4,7 @@ import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, INJECT_HANDLER_PROPS, LAZY_HANDLER }
 
 export function Injectable(options?: InjectableOption): ClassDecorator {
   return (target: any) => {
-    const md = { id: target, scope: ScopeEnum.SINGLETON, lazy: false, ...options };
+    const md = { id: target, scope: ScopeEnum.EXECUTION, lazy: false, ...options };
     setMetadata(CLASS_CONSTRUCTOR, md, target);
 
     // make all properties lazy
@@ -15,7 +15,7 @@ export function Injectable(options?: InjectableOption): ClassDecorator {
         target,
       ) as ReflectMetadataType[];
       const properties = (props ?? []).concat(handlerProps ?? []);
-      properties.forEach(property => property.handler = LAZY_HANDLER);
+      properties.forEach(property => (property.handler = LAZY_HANDLER));
     }
   };
 }

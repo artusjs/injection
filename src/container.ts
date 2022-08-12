@@ -2,7 +2,6 @@ import {
   CLASS_CONSTRUCTOR,
   CLASS_PROPERTY,
   CLASS_CONSTRUCTOR_ARGS,
-  CLASS_ASYNC_INIT_METHOD,
   CLASS_TAG,
   INJECT_HANDLER_ARGS,
   INJECT_HANDLER_PROPS,
@@ -69,7 +68,7 @@ export default class Container implements ContainerType {
       const md: InjectableMetadata = {
         id: options.id,
         value: options.value,
-        scope: options.scope ?? ScopeEnum.SINGLETON,
+        scope: options.scope ?? ScopeEnum.EXECUTION,
       };
       this.registry.set(md.id, md);
       return this;
@@ -85,7 +84,6 @@ export default class Container implements ContainerType {
     if (type) {
       const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
       const props = recursiveGetMetadata(CLASS_PROPERTY, type) as ReflectMetadataType[];
-      const initMethodMd = getMetadata(CLASS_ASYNC_INIT_METHOD, type) as ReflectMetadataType;
       const handlerArgs = getMetadata(INJECT_HANDLER_ARGS, type) as ReflectMetadataType[];
       const handlerProps = recursiveGetMetadata(
         INJECT_HANDLER_PROPS,
@@ -94,7 +92,6 @@ export default class Container implements ContainerType {
 
       md.constructorArgs = (args ?? []).concat(handlerArgs ?? []);
       md.properties = (props ?? []).concat(handlerProps ?? []);
-      md.initMethod = initMethodMd?.propertyName ?? 'init';
       /**
        * compatible with inject type identifier when identifier is string
        */
@@ -168,7 +165,7 @@ export default class Container implements ContainerType {
     scope: ScopeEnum;
     type?: Constructable | null;
   } {
-    let { type, id, scope = ScopeEnum.SINGLETON, factory } = options;
+    let { type, id, scope = ScopeEnum.EXECUTION, factory } = options;
     if (!type) {
       if (id && isClass(id)) {
         type = id as Constructable;

@@ -35,6 +35,10 @@ export default class ExecutionContainer extends Container {
   }
 
   private setValue(md: InjectableMetadata, value: any) {
+    if (md.value) {
+      return;
+    }
+
     if (md.id !== md.type) {
       this.set({
         id: md.type!,
