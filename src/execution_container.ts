@@ -2,6 +2,7 @@ import { EXECUTION_CONTEXT_KEY } from './constant';
 import Container from './container';
 import { ContainerType, HandlerFunction, Identifier, InjectableMetadata, ScopeEnum } from './types';
 import { NotFoundError } from './error';
+import { isUndefined } from './util';
 
 export default class ExecutionContainer extends Container {
   private parent: ContainerType;
@@ -35,13 +36,19 @@ export default class ExecutionContainer extends Container {
   }
 
   private setValue(md: InjectableMetadata, value: any) {
-    if (md.id !== md.type) {
+    if (!isUndefined(md.value)) {
+      return;
+    }
+
+    if (md.type && md.id !== md.type) {
       this.set({
-        id: md.type!,
+        ...md,
+        id: md.type,
         value,
       });
     }
     this.set({
+      ...md,
       id: md.id,
       value,
     });
