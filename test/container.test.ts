@@ -111,6 +111,13 @@ describe('container', () => {
         execContainer.get('config.emails');
       }).toThrowError('identifier was not found in the container');
     });
+
+    it('should not set value if metadata value exist', () => {
+      const execContainer = new ExecutionContainer(ctx, container);
+      execContainer.set({ id: 'hasValue', factory: () => 'hello', scope: ScopeEnum.EXECUTION });
+      expect(execContainer.get('hasValue')).toBe('hello');
+      expect(execContainer.get('hasValue')).toBe('hello');
+    });
   });
 });
 
