@@ -13,6 +13,7 @@ import LazyCClass from './fixtures/lazy/lazy_c';
 import LazyBClass from './fixtures/lazy/lazy_b';
 import LazyAClass from './fixtures/lazy/lazy_a';
 import LazyDClass from './fixtures/lazy/lazy_d';
+import Token from './fixtures/class_inject/token';
 
 const ctx = {};
 const container = new Container('default');
@@ -31,6 +32,7 @@ describe('container', () => {
     container.set({ id: 'emptyStr', value: '' });
     container.set({ id: 'nullObj', value: null });
     container.set({ type: ExecutionClazzA });
+    container.set({ id: 'valueId', value: 'token', type: Token });
   });
 
   it('should get instance from container', () => {
@@ -63,6 +65,14 @@ describe('container', () => {
 
     expect(phone).toBe(phone1);
   });
+
+  it('should get value ok by type when register by string id and type', () => {
+    const token = container.get('valueId');
+    expect(token).toBe('token');
+    const token1 = container.get(Token);
+    expect(token).toBe(token1);
+  });
+
 
   it('should get empty value if value is set', () => {
     expect(container.get('emptyStr')).toBe('');
