@@ -15,6 +15,10 @@ import LazyAClass from './fixtures/lazy/lazy_a';
 import LazyDClass from './fixtures/lazy/lazy_d';
 import LazyWithHandler from './fixtures/lazy/lazy_with_handler';
 import Token from './fixtures/class_inject/token';
+import CrossA from './fixtures/cross_scope/cross_a';
+import CrossB from './fixtures/cross_scope/cross_b';
+import CrossC from './fixtures/cross_scope/cross_c';
+import CrossD from './fixtures/cross_scope/cross_d';
 
 const ctx = {};
 const container = new Container('default');
@@ -338,8 +342,35 @@ describe('container#lazy', () => {
     } catch (err) {
       expect(err).toBeDefined();
       expect(err.message).toContain(
-        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`,
+        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`
       );
     }
+  });
+});
+
+describe('container#crossScope', () => {
+  let container;
+  beforeAll(() => {
+    container = new Container('cross_scope');
+    container.set({ id: CrossA });
+    container.set({ id: CrossB });
+    container.set({ id: CrossC });
+    container.set({ id: CrossD });
+  });
+
+  it('should throw error when inject execution scope into single', () => {
+    expect(() => {
+      container.get(CrossA);
+    }).toThrow(
+      `[@artus/injection] 'CrossA' with singleton scope cannot inject property 'crossB' with execution scope`
+    );
+  });
+
+  it('should not throw error when inject execution scope into single with allowCrossScope', () => {
+    expect(() => {
+      const c = container.get(CrossC);
+      expect(c).toBeInstanceOf(CrossC);
+      expect(c.crossD).toBeInstanceOf(CrossD);
+    }).not.toThrow();
   });
 });

@@ -2,12 +2,14 @@ import { Constructable, Identifier } from './types';
 import { createErrorClass } from './base_error';
 
 export class CannotInjectValueError extends createErrorClass('CannotInjectValueError') {
-  constructor(target: Constructable<unknown>, propertyName: string | symbol) {
-    super(
-      () =>
-        `[@artus/injection] Cannot inject value into "` +
-        `${target.name}.${String(propertyName)}". `,
-    );
+  constructor(target: Constructable<unknown>, propertyOrIndex: string | symbol | number) {
+    super(() => {
+      let message = `'${target.name}.${String(propertyOrIndex)}'`;
+      if (typeof propertyOrIndex === 'number') {
+        message = `'${target.name}' constructor argument at index '${propertyOrIndex}'`;
+      }
+      return `[@artus/injection] Cannot inject value into ${message}, maybe inject identifier is undefined or type is primitive type`;
+    });
   }
 }
 
@@ -53,5 +55,19 @@ export class InjectionError extends createErrorClass('InjectionError') {
 export class LazyInjectConstructorError extends createErrorClass('LazyInjectConstructor') {
   constructor(name: string) {
     super(`[@artus/injection] cannot inject '${name}' constructor argument by lazy`);
+  }
+}
+
+export class SingletonInjectExecutionError extends createErrorClass(
+  'SingletonInjectExecutionError'
+) {
+  constructor(target: Constructable<unknown>, propertyOrIndex: string | symbol | number) {
+    super(() => {
+      let message = `property '${String(propertyOrIndex)}'`;
+      if (typeof propertyOrIndex === 'number') {
+        message = `constructor argument at index '${propertyOrIndex}'`;
+      }
+      return `[@artus/injection] '${target.name}' with singleton scope cannot inject ${message} with execution scope.`;
+    });
   }
 }

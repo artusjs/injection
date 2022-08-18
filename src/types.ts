@@ -18,6 +18,7 @@ export interface InjectableOption {
   id?: Identifier;
   scope?: ScopeEnum;
   lazy?: boolean;
+  allowCrossScope?: boolean;
 }
 
 export interface InjectableDefinition<T = unknown> {
@@ -25,13 +26,13 @@ export interface InjectableDefinition<T = unknown> {
   scope: ScopeEnum;
   type?: Constructable<T> | null;
   value?: unknown;
-  path?: string;
   /**
    * Indicates whether a new instance should be created as soon as the class is registered.
    * By default the registered classes are only instantiated when they are requested from the container.
    */
   eager?: boolean;
   factory?: (id: Identifier, container?: ContainerType) => any;
+  allowCrossScope?: boolean;
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
@@ -48,6 +49,7 @@ export interface ReflectMetadataType {
   propertyName?: string | symbol;
   handler?: string | symbol;
   lazy?: boolean;
+  allowCrossScope?: boolean;
 }
 
 export interface ContainerType {
