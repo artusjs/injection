@@ -13,6 +13,7 @@ import LazyCClass from './fixtures/lazy/lazy_c';
 import LazyBClass from './fixtures/lazy/lazy_b';
 import LazyAClass from './fixtures/lazy/lazy_a';
 import LazyDClass from './fixtures/lazy/lazy_d';
+import LazyWithHandler from './fixtures/lazy/lazy_with_handler';
 import Token from './fixtures/class_inject/token';
 
 const ctx = {};
@@ -72,7 +73,6 @@ describe('container', () => {
     const token1 = container.get(Token);
     expect(token).toBe(token1);
   });
-
 
   it('should get empty value if value is set', () => {
     expect(container.get('emptyStr')).toBe('');
@@ -252,20 +252,20 @@ describe('container#factory', () => {
   it('should set not throw error with factory and no type', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      container.set({ id: 'demo', factory: () => { } });
+      container.set({ id: 'demo', factory: () => {} });
     }).not.toThrow();
   });
   it('should set not throw error with factory and type', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      container.set({ factory: () => { }, type: Foo });
+      container.set({ factory: () => {}, type: Foo });
     }).not.toThrow();
   });
 
   it('should set throw error with factory and no id', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      container.set({ factory: () => { } });
+      container.set({ factory: () => {} });
     }).toThrow('id is required');
   });
 
@@ -313,5 +313,16 @@ describe('container#lazy', () => {
     expect(instanceb.lazyC).toBeInstanceOf(LazyCClass);
     expect(instanceb.lazyC === instanceb.lazyC).toBeTruthy();
     expect(instanceb.lazyC.name).toBe('lazyCClass');
+  });
+
+  it('should ignore property with custom handler', () => {
+    const container = new Container('lazy_ignore');
+    container.registerHandler('config', () => {
+      return { name: 'artus' };
+    });
+    container.set({ type: LazyWithHandler });
+    const instance = container.get(LazyWithHandler);
+    expect(instance).toBeDefined();
+    expect(instance.config).toEqual({ name: 'artus' });
   });
 });

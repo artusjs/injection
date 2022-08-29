@@ -15,7 +15,11 @@ export function Injectable(options?: InjectableOption): ClassDecorator {
         target,
       ) as ReflectMetadataType[];
       const properties = (props ?? []).concat(handlerProps ?? []);
-      properties.forEach(property => property.handler = LAZY_HANDLER);
+      properties.forEach(property => {
+        if (!property.handler) {
+          property.handler = LAZY_HANDLER;
+        }
+      });
     }
   };
 }
