@@ -9,8 +9,8 @@ import {
   isObject,
   isUndefined,
 } from '../util';
-import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS, LAZY_HANDLER } from '../constant';
-import { CannotInjectValueError } from '../error';
+import { CLASS_PROPERTY, CLASS_CONSTRUCTOR_ARGS } from '../constant';
+import { CannotInjectValueError, LazyInjectConstructorError } from '../error';
 
 export function Inject(id?: Identifier);
 export function Inject(options?: InjectOptions);
@@ -35,12 +35,14 @@ export function Inject(idOrOptions?: Identifier | InjectOptions) {
     }
 
     if (!isUndefined(index)) {
+      if (options.lazy) {
+        throw new LazyInjectConstructorError(target.name);
+      }
       const metadata = (getMetadata(CLASS_CONSTRUCTOR_ARGS, target) || []) as ReflectMetadataType[];
       metadata.push({
         ...options,
         id: propertyType!,
         index,
-        handler: options.lazy ? LAZY_HANDLER : undefined,
       });
       setMetadata(CLASS_CONSTRUCTOR_ARGS, metadata, target);
       return;
@@ -51,7 +53,6 @@ export function Inject(idOrOptions?: Identifier | InjectOptions) {
       ...options,
       id: propertyType!,
       propertyName: propertyKey,
-      handler: options.lazy ? LAZY_HANDLER : undefined,
     });
     setMetadata(CLASS_PROPERTY, metadata, target);
   };

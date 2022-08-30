@@ -5,4 +5,7 @@ import { Config } from '../handler_resolve/config';
 export default class LazyWithHandlerClass {
   @Config()
   config!: Record<string, any>;
+
+  @Config('name')
+  name!: string;
 }

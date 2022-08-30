@@ -6,7 +6,7 @@ export class CannotInjectValueError extends createErrorClass('CannotInjectValueE
     super(
       () =>
         `[@artus/injection] Cannot inject value into "` +
-                `${target.name}.${String(propertyName)}". `,
+        `${target.name}.${String(propertyName)}". `,
     );
   }
 }
@@ -20,13 +20,11 @@ export class NoTypeError extends createErrorClass('NoTypeError') {
 export class NotFoundError extends createErrorClass('NotFoundError') {
   constructor(identifier: Identifier) {
     const normalizedIdentifier =
-            typeof identifier === 'function'
-              ? identifier.name
-              : (identifier ?? 'Unknown').toString();
+      typeof identifier === 'function' ? identifier.name : (identifier ?? 'Unknown').toString();
     super(() => {
       return (
         `[@artus/injection] with "${normalizedIdentifier}" ` +
-                `identifier was not found in the container. `
+        `identifier was not found in the container. `
       );
     });
   }
@@ -49,5 +47,11 @@ export class NoIdentifierError extends createErrorClass('NoIdentifierError') {
 export class InjectionError extends createErrorClass('InjectionError') {
   constructor(message: string) {
     super(`[@artus/injection] ${message}`);
+  }
+}
+
+export class LazyInjectConstructorError extends createErrorClass('LazyInjectConstructor') {
+  constructor(name: string) {
+    super(`[@artus/injection] cannot inject '${name}' constructor argument by lazy`);
   }
 }

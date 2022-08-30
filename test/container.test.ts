@@ -315,14 +315,31 @@ describe('container#lazy', () => {
     expect(instanceb.lazyC.name).toBe('lazyCClass');
   });
 
-  it('should ignore property with custom handler', () => {
+  it('should inject property with custom handler OK', () => {
     const container = new Container('lazy_ignore');
-    container.registerHandler('config', () => {
-      return { name: 'artus' };
-    });
     container.set({ type: LazyWithHandler });
     const instance = container.get(LazyWithHandler);
+    container.registerHandler('config', id => {
+      if (id === CONFIG_ALL) {
+        return { name: 'artus' };
+      }
+      return 'artus';
+    });
     expect(instance).toBeDefined();
     expect(instance.config).toEqual({ name: 'artus' });
+    expect(instance.name).toBe('artus');
+  });
+
+  it('should throw error when inject lazy constructor arg', () => {
+    const container = new Container('lazy_constructor');
+    try {
+      const LazyConstructorClass = require('./fixtures/lazy/constructor_arg').default;
+      container.set({ type: LazyConstructorClass });
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(err.message).toContain(
+        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`,
+      );
+    }
   });
 });
