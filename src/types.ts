@@ -47,6 +47,7 @@ export interface ReflectMetadataType {
   noThrow?: boolean;
   propertyName?: string | symbol;
   handler?: string | symbol;
+  lazy?: boolean;
 }
 
 export interface ContainerType {

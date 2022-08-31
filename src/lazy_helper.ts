@@ -1,38 +1,22 @@
-import Container from './container';
-import { Identifier } from './types';
+import type Container from './container';
+import { ReflectMetadataType } from './types';
 
-const reflectMethods: ReadonlyArray<keyof ProxyHandler<any>> = ['get', 'set', 'getPrototypeOf'];
-
-function createHandler<T extends Object>(delayedObject: () => T): ProxyHandler<T> {
-  const handler: ProxyHandler<T> = {};
-  const install = (name: keyof ProxyHandler<T>) => {
-    handler[name] = (...args: any[]) => {
-      const instance = args[0] = delayedObject();
-      const method = Reflect[name];
-      const result = (method as any)(...args);
-      return typeof result === 'function'
-        ? result.bind(instance)
-        : result;
-    };
-  };
-  reflectMethods.forEach(install);
-  return handler;
-}
-
-function createProxy<T>(id: Identifier<T>, container: Container): T {
-  const target: Record<string, any> = {};
+export function createLazyProperty(instance: any, md: ReflectMetadataType, container: Container) {
   let init = false;
-  let value: T;
-  const delayedObject: () => T = (): T => {
+  let value: any;
+  const delayedValue = () => {
     if (!init) {
-      value = container.get(id);
+      value = container.getValueByMetadata(md);
       init = true;
     }
     return value;
   };
-  return new Proxy<any>(target, createHandler(delayedObject)) as T;
-}
 
-export function lazyHandler<T>(id: Identifier<T>, container: Container): T {
-  return createProxy(id, container);
+  Object.defineProperty(instance, md.propertyName!, {
+    get() {
+      return delayedValue();
+    },
+    enumerable: false,
+    configurable: true,
+  });
 }

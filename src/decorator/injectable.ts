@@ -1,6 +1,6 @@
 import { InjectableOption, ReflectMetadataType } from '../types';
 import { recursiveGetMetadata, setMetadata } from '../util';
-import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, INJECT_HANDLER_PROPS, LAZY_HANDLER } from '../constant';
+import { CLASS_CONSTRUCTOR, CLASS_PROPERTY, INJECT_HANDLER_PROPS } from '../constant';
 
 export function Injectable(options?: InjectableOption): ClassDecorator {
   return (target: any) => {
@@ -15,7 +15,7 @@ export function Injectable(options?: InjectableOption): ClassDecorator {
         target,
       ) as ReflectMetadataType[];
       const properties = (props ?? []).concat(handlerProps ?? []);
-      properties.forEach(property => property.handler = LAZY_HANDLER);
+      properties.forEach(property => (property.lazy = true));
     }
   };
 }
