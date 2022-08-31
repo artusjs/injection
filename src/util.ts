@@ -45,7 +45,7 @@ export function recursiveGetMetadata(
   }
 
   let proto = Object.getPrototypeOf(target);
-  if (proto !== null && proto !== functionPrototype) {
+  while (proto !== null && proto !== functionPrototype) {
     const metadata = getMetadata(metadataKey, proto, propertyKey);
     if (metadata) {
       metadatas = metadatas.concat(metadata);
@@ -96,8 +96,8 @@ export function isClass(clazz: any) {
 
   return (
     fnStr.substring(0, 5) === 'class' ||
-        Boolean(~fnStr.indexOf('classCallCheck(')) ||
-        Boolean(~fnStr.indexOf('TypeError("Cannot call a class as a function")'))
+    Boolean(~fnStr.indexOf('classCallCheck(')) ||
+    Boolean(~fnStr.indexOf('TypeError("Cannot call a class as a function")'))
   );
 }
 
