@@ -52,7 +52,7 @@ export default class Container implements ContainerType {
 
   public get<T = unknown>(
     id: Identifier<T>,
-    options: { noThrow?: boolean; defaultValue?: any } = {}
+    options: { noThrow?: boolean; defaultValue?: any } = {},
   ): T {
     const md = this.getDefinition(id);
     if (!md) {
@@ -96,7 +96,7 @@ export default class Container implements ContainerType {
       const handlerArgs = getMetadata(INJECT_HANDLER_ARGS, type) as ReflectMetadataType[];
       const handlerProps = recursiveGetMetadata(
         INJECT_HANDLER_PROPS,
-        type
+        type,
       ) as ReflectMetadataType[];
 
       md.constructorArgs = (args ?? []).concat(handlerArgs ?? []);
@@ -293,7 +293,7 @@ export default class Container implements ContainerType {
   private checkScope(
     metadata: InjectableMetadata,
     id: Identifier,
-    propertyOrIndex: string | symbol | number
+    propertyOrIndex: string | symbol | number,
   ) {
     const { scope } = metadata;
     if (scope === ScopeEnum.EXECUTION || scope === ScopeEnum.TRANSIENT) {

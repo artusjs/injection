@@ -63,7 +63,7 @@ export class ScopeEscapeError extends createErrorClass('SingletonInjectExecution
     target: Constructable<unknown>,
     propertyOrIndex: string | symbol | number,
     classScope: string,
-    propScope: string
+    propScope: string,
   ) {
     super(() => {
       let message = `property '${String(propertyOrIndex)}'`;

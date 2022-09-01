@@ -84,19 +84,6 @@ describe('container', () => {
     expect(container.get('nullObj')).toBe(null);
   });
 
-  it('should throw error when no find definition with identifier', () => {
-    expect(() => {
-      container.get('config.emails');
-    }).toThrowError('identifier was not found in the container');
-  });
-
-  it('should not throw error when no find definition with identifier', () => {
-    expect(() => {
-      const value = container.get('config.emails', { noThrow: true, defaultValue: '' });
-      expect(value).toBe('');
-    }).not.toThrowError();
-  });
-
   describe('ExecutionContainer', () => {
     it('should get instance by execution', () => {
       const instanceA = execContainer.get(ExecutionClazzA);
@@ -343,7 +330,7 @@ describe('container#lazy', () => {
     } catch (err) {
       expect(err).toBeDefined();
       expect(err.message).toContain(
-        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`
+        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`,
       );
     }
   });
@@ -364,13 +351,13 @@ describe('container#scopeEscape', () => {
     expect(() => {
       container.get(EscapeA);
     }).toThrow(
-      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`
+      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`,
     );
 
     expect(() => {
       container.get(EscapeE);
     }).toThrow(
-      `[@artus/injection] 'CrossE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`
+      `[@artus/injection] 'EscapeE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`,
     );
   });
 
@@ -380,5 +367,25 @@ describe('container#scopeEscape', () => {
       expect(c).toBeInstanceOf(EscapeC);
       expect(c.escapeD).toBeInstanceOf(EscapeD);
     }).not.toThrow();
+  });
+});
+
+describe('container#noThrow', () => {
+  let container;
+  beforeAll(() => {
+    container = new Container('no_throw');
+  });
+  it('should throw error when no find definition with identifier', () => {
+    expect(() => {
+      container.get(Phone);
+    }).toThrowError('identifier was not found in the container');
+  });
+
+  it('should not throw error when no find definition with identifier', () => {
+    expect(() => {
+      const phone = new Phone();
+      const value = container.get(Phone, { noThrow: true, defaultValue: phone });
+      expect(value).toBe(phone);
+    }).not.toThrowError();
   });
 });
