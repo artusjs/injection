@@ -15,6 +15,11 @@ import LazyAClass from './fixtures/lazy/lazy_a';
 import LazyDClass from './fixtures/lazy/lazy_d';
 import LazyWithHandler from './fixtures/lazy/lazy_with_handler';
 import Token from './fixtures/class_inject/token';
+import EscapeA from './fixtures/scope_escape/escape_a';
+import EscapeB from './fixtures/scope_escape/escape_b';
+import EscapeC from './fixtures/scope_escape/escape_c';
+import EscapeD from './fixtures/scope_escape/escape_d';
+import EscapeE from './fixtures/scope_escape/escape_e';
 
 const ctx = {};
 const container = new Container('default');
@@ -77,19 +82,6 @@ describe('container', () => {
   it('should get empty value if value is set', () => {
     expect(container.get('emptyStr')).toBe('');
     expect(container.get('nullObj')).toBe(null);
-  });
-
-  it('should throw error when no find definition with identifier', () => {
-    expect(() => {
-      container.get('config.emails');
-    }).toThrowError('identifier was not found in the container');
-  });
-
-  it('should not throw error when no find definition with identifier', () => {
-    expect(() => {
-      const value = container.get('config.emails', { noThrow: true, defaultValue: '' });
-      expect(value).toBe('');
-    }).not.toThrowError();
   });
 
   describe('ExecutionContainer', () => {
@@ -341,5 +333,59 @@ describe('container#lazy', () => {
         `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`,
       );
     }
+  });
+});
+
+describe('container#scopeEscape', () => {
+  let container;
+  beforeAll(() => {
+    container = new Container('scope_escape');
+    container.set({ id: EscapeA });
+    container.set({ id: EscapeB });
+    container.set({ id: EscapeC });
+    container.set({ id: EscapeD });
+    container.set({ id: EscapeE });
+  });
+
+  it('should throw error when inject execution scope into single', () => {
+    expect(() => {
+      container.get(EscapeA);
+    }).toThrow(
+      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`,
+    );
+
+    expect(() => {
+      container.get(EscapeE);
+    }).toThrow(
+      `[@artus/injection] 'EscapeE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`,
+    );
+  });
+
+  it('should not throw error when inject execution scope into single with scopeEscape true', () => {
+    expect(() => {
+      const c = container.get(EscapeC);
+      expect(c).toBeInstanceOf(EscapeC);
+      expect(c.escapeD).toBeInstanceOf(EscapeD);
+    }).not.toThrow();
+  });
+});
+
+describe('container#noThrow', () => {
+  let container;
+  beforeAll(() => {
+    container = new Container('no_throw');
+  });
+  it('should throw error when no find definition with identifier', () => {
+    expect(() => {
+      container.get(Phone);
+    }).toThrowError('identifier was not found in the container');
+  });
+
+  it('should not throw error when no find definition with identifier', () => {
+    expect(() => {
+      const phone = new Phone();
+      const value = container.get(Phone, { noThrow: true, defaultValue: phone });
+      expect(value).toBe(phone);
+    }).not.toThrowError();
   });
 });
