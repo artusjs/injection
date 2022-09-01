@@ -204,7 +204,7 @@ export default class Container implements ContainerType {
       const targetMd = (getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType) || {};
       id = targetMd.id ?? id ?? type;
       scope = targetMd.scope ?? scope;
-      scopeEscape = targetMd.scopeEscape || scopeEscape;
+      scopeEscape = targetMd.scopeEscape ?? scopeEscape;
     }
 
     if (!id && factory) {
