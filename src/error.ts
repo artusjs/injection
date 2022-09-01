@@ -58,16 +58,20 @@ export class LazyInjectConstructorError extends createErrorClass('LazyInjectCons
   }
 }
 
-export class SingletonInjectExecutionError extends createErrorClass(
-  'SingletonInjectExecutionError'
-) {
-  constructor(target: Constructable<unknown>, propertyOrIndex: string | symbol | number) {
+export class ScopeEscapeError extends createErrorClass('SingletonInjectExecutionError') {
+  constructor(
+    target: Constructable<unknown>,
+    propertyOrIndex: string | symbol | number,
+    classScope: string,
+    propScope: string
+  ) {
     super(() => {
       let message = `property '${String(propertyOrIndex)}'`;
       if (typeof propertyOrIndex === 'number') {
         message = `constructor argument at index '${propertyOrIndex}'`;
       }
-      return `[@artus/injection] '${target.name}' with singleton scope cannot inject ${message} with execution scope.`;
+
+      return `[@artus/injection] '${target.name}' with '${classScope}' scope cannot be injected ${message} with '${propScope}' scope`;
     });
   }
 }

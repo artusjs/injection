@@ -18,7 +18,7 @@ export interface InjectableOption {
   id?: Identifier;
   scope?: ScopeEnum;
   lazy?: boolean;
-  allowCrossScope?: boolean;
+  scopeEscape?: boolean;
 }
 
 export interface InjectableDefinition<T = unknown> {
@@ -32,7 +32,7 @@ export interface InjectableDefinition<T = unknown> {
    */
   eager?: boolean;
   factory?: (id: Identifier, container?: ContainerType) => any;
-  allowCrossScope?: boolean;
+  scopeEscape?: boolean;
 }
 
 export interface InjectableMetadata<T = any> extends InjectableDefinition<T> {
@@ -49,7 +49,7 @@ export interface ReflectMetadataType {
   propertyName?: string | symbol;
   handler?: string | symbol;
   lazy?: boolean;
-  allowCrossScope?: boolean;
+  scopeEscape?: boolean;
 }
 
 export interface ContainerType {

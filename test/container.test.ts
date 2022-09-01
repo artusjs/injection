@@ -15,10 +15,11 @@ import LazyAClass from './fixtures/lazy/lazy_a';
 import LazyDClass from './fixtures/lazy/lazy_d';
 import LazyWithHandler from './fixtures/lazy/lazy_with_handler';
 import Token from './fixtures/class_inject/token';
-import CrossA from './fixtures/cross_scope/cross_a';
-import CrossB from './fixtures/cross_scope/cross_b';
-import CrossC from './fixtures/cross_scope/cross_c';
-import CrossD from './fixtures/cross_scope/cross_d';
+import EscapeA from './fixtures/scope_escape/escape_a';
+import EscapeB from './fixtures/scope_escape/escape_b';
+import EscapeC from './fixtures/scope_escape/escape_c';
+import EscapeD from './fixtures/scope_escape/escape_d';
+import EscapeE from './fixtures/scope_escape/escape_e';
 
 const ctx = {};
 const container = new Container('default');
@@ -348,29 +349,36 @@ describe('container#lazy', () => {
   });
 });
 
-describe('container#crossScope', () => {
+describe('container#scopeEscape', () => {
   let container;
   beforeAll(() => {
-    container = new Container('cross_scope');
-    container.set({ id: CrossA });
-    container.set({ id: CrossB });
-    container.set({ id: CrossC });
-    container.set({ id: CrossD });
+    container = new Container('scope_escape');
+    container.set({ id: EscapeA });
+    container.set({ id: EscapeB });
+    container.set({ id: EscapeC });
+    container.set({ id: EscapeD });
+    container.set({ id: EscapeE });
   });
 
   it('should throw error when inject execution scope into single', () => {
     expect(() => {
-      container.get(CrossA);
+      container.get(EscapeA);
     }).toThrow(
-      `[@artus/injection] 'CrossA' with singleton scope cannot inject property 'crossB' with execution scope`
+      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`
+    );
+
+    expect(() => {
+      container.get(EscapeE);
+    }).toThrow(
+      `[@artus/injection] 'CrossE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`
     );
   });
 
-  it('should not throw error when inject execution scope into single with allowCrossScope', () => {
+  it('should not throw error when inject execution scope into single with scopeEscape true', () => {
     expect(() => {
-      const c = container.get(CrossC);
-      expect(c).toBeInstanceOf(CrossC);
-      expect(c.crossD).toBeInstanceOf(CrossD);
+      const c = container.get(EscapeC);
+      expect(c).toBeInstanceOf(EscapeC);
+      expect(c.escapeD).toBeInstanceOf(EscapeD);
     }).not.toThrow();
   });
 });

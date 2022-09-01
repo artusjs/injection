@@ -32,7 +32,7 @@ import {
   NoHandlerError,
   NoIdentifierError,
   InjectionError,
-  SingletonInjectExecutionError,
+  ScopeEscapeError,
 } from './error';
 import { createLazyProperty } from './lazy_helper';
 
@@ -82,13 +82,13 @@ export default class Container implements ContainerType {
       return this;
     }
 
-    const { type, id, scope, allowCrossScope } = this.getDefinedMetaData(options);
+    const { type, id, scope, scopeEscape } = this.getDefinedMetaData(options);
     const md: InjectableMetadata = {
       ...options,
       id,
       type,
       scope,
-      allowCrossScope,
+      scopeEscape,
     };
     if (type) {
       const args = getMetadata(CLASS_CONSTRUCTOR_ARGS, type) as ReflectMetadataType[];
@@ -151,7 +151,10 @@ export default class Container implements ContainerType {
     if (md.handler) {
       return this.resolveHandler(md.handler, md.id);
     }
-    return this.get(md.id, { noThrow: md.noThrow, defaultValue: md.defaultValue });
+    return this.get(md.id, {
+      noThrow: md.noThrow,
+      defaultValue: md.defaultValue,
+    });
   }
 
   protected getValue(md: InjectableMetadata) {
@@ -167,7 +170,7 @@ export default class Container implements ContainerType {
       const clazz = md.type!;
       const params = this.resolveParams(clazz, md);
       value = new clazz(...params);
-      this.resolveProps(value, md.properties ?? []);
+      this.resolveProps(value, md);
     }
 
     if (md.scope === ScopeEnum.SINGLETON) {
@@ -180,9 +183,9 @@ export default class Container implements ContainerType {
     id: Identifier;
     scope: ScopeEnum;
     type?: Constructable | null;
-    allowCrossScope?: boolean;
+    scopeEscape?: boolean;
   } {
-    let { type, id, scope = ScopeEnum.SINGLETON, factory, allowCrossScope } = options;
+    let { type, id, scope = ScopeEnum.SINGLETON, factory, scopeEscape } = options;
     if (!type) {
       if (id && isClass(id)) {
         type = id as Constructable;
@@ -201,14 +204,14 @@ export default class Container implements ContainerType {
       const targetMd = (getMetadata(CLASS_CONSTRUCTOR, type) as ReflectMetadataType) || {};
       id = targetMd.id ?? id ?? type;
       scope = targetMd.scope ?? scope;
-      allowCrossScope = targetMd.allowCrossScope ?? allowCrossScope;
+      scopeEscape = targetMd.scopeEscape || scopeEscape;
     }
 
     if (!id && factory) {
       throw new NoIdentifierError(`injectable with factory option`);
     }
 
-    return { type, id: id!, scope, allowCrossScope };
+    return { type, id: id!, scope, scopeEscape };
   }
 
   private resolveParams(clazz: any, md: InjectableMetadata): any[] {
@@ -225,14 +228,21 @@ export default class Container implements ContainerType {
       if (isPrimitiveFunction(arg.id as any)) {
         return;
       }
+      if (!arg.handler) {
+        this.checkScope(md, arg.id, arg.index!);
+      }
 
       params[arg.index!] = this.getValueByMetadata(arg);
     });
     return params;
   }
 
-  private resolveProps(instance: any, props: ReflectMetadataType[]) {
-    props.forEach(prop => {
+  private resolveProps(instance: any, md: InjectableMetadata) {
+    const { properties = [] } = md;
+    properties.forEach(prop => {
+      if (!prop.handler) {
+        this.checkScope(md, prop.id, prop.propertyName!);
+      }
       if (prop.lazy) {
         return createLazyProperty(instance, prop, this);
       }
@@ -267,6 +277,19 @@ export default class Container implements ContainerType {
     return id ? handler(id, this) : handler(this);
   }
 
+  /**
+   * check rule
+   * The first column is the class scope and the first row is the property scope
+   * ----------------------------------------
+   *          |singleton|execution |transient
+   * ----------------------------------------
+   * singleton|✅        |❌        |✅
+   * ----------------------------------------
+   * execution|✅        |✅        |✅
+   * ----------------------------------------
+   * transient|✅        |❓        |✅
+   * ----------------------------------------
+   */
   private checkScope(
     metadata: InjectableMetadata,
     id: Identifier,
@@ -278,8 +301,9 @@ export default class Container implements ContainerType {
     }
 
     const propMetadata = this.getDefinition(id);
-    if (propMetadata?.scope === ScopeEnum.EXECUTION && !propMetadata.allowCrossScope) {
-      throw new SingletonInjectExecutionError(metadata.type!, propertyOrIndex);
+
+    if (propMetadata?.scope === ScopeEnum.EXECUTION && !propMetadata.scopeEscape) {
+      throw new ScopeEscapeError(metadata.type!, propertyOrIndex, scope, propMetadata.scope);
     }
   }
 }
