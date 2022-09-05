@@ -371,13 +371,18 @@ describe('container#scopeEscape', () => {
 });
 
 describe('container#noThrow', () => {
-  let container;
+  let container, execContainer;
   beforeAll(() => {
     container = new Container('no_throw');
+    execContainer = new ExecutionContainer({}, container);
   });
   it('should throw error when no find definition with identifier', () => {
     expect(() => {
       container.get(Phone);
+    }).toThrowError('identifier was not found in the container');
+
+    expect(() => {
+      execContainer.get(Phone);
     }).toThrowError('identifier was not found in the container');
   });
 
@@ -385,7 +390,9 @@ describe('container#noThrow', () => {
     expect(() => {
       const phone = new Phone();
       const value = container.get(Phone, { noThrow: true, defaultValue: phone });
+      const value2 = execContainer.get(Phone, { noThrow: true, defaultValue: phone });
       expect(value).toBe(phone);
+      expect(value2).toBe(phone);
     }).not.toThrowError();
   });
 });
