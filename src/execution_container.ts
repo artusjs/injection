@@ -14,9 +14,15 @@ export default class ExecutionContainer extends Container {
     this.set({ id: EXECUTION_CONTEXT_KEY, value: ctx });
   }
 
-  public get<T = unknown>(id: Identifier<T>): T {
+  public get<T = unknown>(
+    id: Identifier<T>,
+    options: { noThrow?: boolean; defaultValue?: any } = {},
+  ): T {
     const md = this.getDefinition(id) ?? this.parent.getDefinition(id);
     if (!md) {
+      if (options.noThrow) {
+        return options.defaultValue;
+      }
       throw new NotFoundError(id);
     }
 

@@ -53,7 +53,7 @@ export interface ReflectMetadataType {
 }
 
 export interface ContainerType {
-  get<T>(id: Identifier<T>): T;
+  get<T>(id: Identifier<T>, options?: { noThrow?: boolean; defaultValue?: any }): T;
   set(options: Partial<InjectableDefinition>): this;
   getDefinition(id: Identifier): InjectableMetadata | undefined;
   getInjectableByTag(tag: string): any[];
