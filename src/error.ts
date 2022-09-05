@@ -58,7 +58,7 @@ export class LazyInjectConstructorError extends createErrorClass('LazyInjectCons
   }
 }
 
-export class ScopeEscapeError extends createErrorClass('SingletonInjectExecutionError') {
+export class ScopeEscapeError extends createErrorClass('ScopeEscapeError') {
   constructor(
     target: Constructable<unknown>,
     propertyOrIndex: string | symbol | number,
