@@ -16,7 +16,7 @@ export default class ExecutionContainer extends Container {
 
   public get<T = unknown>(
     id: Identifier<T>,
-    options: { noThrow?: boolean; defaultValue?: any } = {}
+    options: { noThrow?: boolean; defaultValue?: any } = {},
   ): T {
     const md = this.getDefinition(id);
     if (!md) {

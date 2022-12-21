@@ -340,7 +340,7 @@ describe('container#lazy', () => {
     } catch (err) {
       expect(err).toBeDefined();
       expect(err.message).toContain(
-        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`
+        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`,
       );
     }
   });
@@ -361,13 +361,13 @@ describe('container#scopeEscape', () => {
     expect(() => {
       container.get(EscapeA);
     }).toThrow(
-      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`
+      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`,
     );
 
     expect(() => {
       container.get(EscapeE);
     }).toThrow(
-      `[@artus/injection] 'EscapeE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`
+      `[@artus/injection] 'EscapeE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`,
     );
   });
 
