@@ -120,6 +120,11 @@ describe('container', () => {
       expect(execContainer.get('hasValue')).toBe('hello');
       expect(execContainer.get('hasValue')).toBe('hello');
     });
+
+    it('should get definition from parent', () => {
+      const definition = execContainer.getDefinition(Phone);
+      expect(definition).toBeDefined();
+    });
   });
 });
 
@@ -132,10 +137,15 @@ describe('container#tag', () => {
   describe('getInjectableByTag', () => {
     it('should get classes by tag', () => {
       const container = new Container('container#tag');
+      const childContainer = new ExecutionContainer({}, container);
       container.set({ type: Foo });
       const clazzes = container.getInjectableByTag('controller');
       expect(clazzes.length).toBeGreaterThan(0);
       expect(clazzes[0]).toEqual(Foo);
+
+      const clazzes3 = childContainer.getInjectableByTag('controller');
+      expect(clazzes3.length).toBeGreaterThan(0);
+      expect(clazzes3[0]).toEqual(Foo);
 
       const clazzes2 = container.getInjectableByTag('middleware');
       expect(clazzes2.length).toBeGreaterThan(0);
@@ -330,7 +340,7 @@ describe('container#lazy', () => {
     } catch (err) {
       expect(err).toBeDefined();
       expect(err.message).toContain(
-        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`,
+        `[@artus/injection] cannot inject 'LazyConstructorClass' constructor argument by lazy`
       );
     }
   });
@@ -351,13 +361,13 @@ describe('container#scopeEscape', () => {
     expect(() => {
       container.get(EscapeA);
     }).toThrow(
-      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`,
+      `[@artus/injection] 'EscapeA' with 'singleton' scope cannot be injected property 'escapeB' with 'execution' scope`
     );
 
     expect(() => {
       container.get(EscapeE);
     }).toThrow(
-      `[@artus/injection] 'EscapeE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`,
+      `[@artus/injection] 'EscapeE' with 'singleton' scope cannot be injected constructor argument at index '0' with 'execution' scope`
     );
   });
 
