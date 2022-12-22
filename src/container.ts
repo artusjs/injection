@@ -67,10 +67,9 @@ export default class Container implements ContainerType {
   public set(options: Partial<InjectableDefinition>) {
     if (options.id && !isUndefined(options.value)) {
       const md: InjectableMetadata = {
+        ...options,
         id: options.id,
-        value: options.value,
         scope: options.scope ?? ScopeEnum.SINGLETON,
-        type: options.type,
       };
       this.registry.set(md.id, md);
       /**
