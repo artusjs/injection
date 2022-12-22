@@ -18,7 +18,7 @@ export default class ExecutionContainer extends Container {
     id: Identifier<T>,
     options: { noThrow?: boolean; defaultValue?: any } = {},
   ): T {
-    const md = this.getDefinition(id) ?? this.parent.getDefinition(id);
+    const md = this.getDefinition(id);
     if (!md) {
       if (options.noThrow) {
         return options.defaultValue;
@@ -33,12 +33,24 @@ export default class ExecutionContainer extends Container {
     return value;
   }
 
+  public getDefinition<T = unknown>(id: Identifier<T>): InjectableMetadata<T> | undefined {
+    return super.getDefinition(id) ?? this.parent.getDefinition(id);
+  }
+
+  public getInjectableByTag(tag: string): any[] {
+    let tags = super.getInjectableByTag(tag);
+    if (!tags || tags.length === 0) {
+      tags = this.parent.getInjectableByTag(tag);
+    }
+    return tags;
+  }
+
   public getCtx(): any {
     return this.ctx;
   }
 
   public getHandler(name: string | symbol): HandlerFunction | undefined {
-    return this.handlerMap.get(name) ?? this.parent.getHandler(name);
+    return super.getHandler(name) ?? this.parent.getHandler(name);
   }
 
   private setValue(md: InjectableMetadata, value: any) {
