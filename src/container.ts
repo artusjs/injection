@@ -99,6 +99,9 @@ export default class Container implements ContainerType {
       ) as ReflectMetadataType[];
 
       md.constructorArgs = (args ?? []).concat(handlerArgs ?? []);
+      if (md.constructorArgs.length === 0) {
+        md.constructorArgs = (getParamMetadata(type) ?? []).map((id, index) => ({ id, index }));
+      }
       md.properties = (props ?? []).concat(handlerProps ?? []);
       /**
        * compatible with inject type identifier when identifier is string
@@ -156,6 +159,14 @@ export default class Container implements ContainerType {
     });
   }
 
+  protected cacheValue(md: InjectableMetadata, value: any) {
+    const cached = { ...md, value };
+    this.registry.set(cached.id, cached);
+    if (cached.type && cached.id !== cached.type) {
+      this.registry.set(cached.type, cached);
+    }
+  }
+
   protected getValue(md: InjectableMetadata) {
     if (!isUndefined(md.value)) {
       return md.value;
@@ -167,7 +178,7 @@ export default class Container implements ContainerType {
 
     if (!value && md.type) {
       const clazz = md.type!;
-      const params = this.resolveParams(clazz, md);
+      const params = this.resolveParams(md);
       value = new clazz(...params);
       this.resolveProps(value, md);
     }
@@ -213,17 +224,11 @@ export default class Container implements ContainerType {
     return { type, id: id!, scope, scopeEscape };
   }
 
-  private resolveParams(clazz: any, md: InjectableMetadata): any[] {
-    let { constructorArgs: args = [] } = md;
+  private resolveParams(md: InjectableMetadata): any[] {
+    const { constructorArgs: args = [] } = md;
     const params: any[] = [];
-    if (!args || !args.length) {
-      args = (getParamMetadata(clazz) ?? []).map((ele, index) => ({
-        id: ele,
-        index,
-      }));
-    }
 
-    args!.forEach(arg => {
+    args.forEach(arg => {
       if (isPrimitiveFunction(arg.id as any)) {
         return;
       }

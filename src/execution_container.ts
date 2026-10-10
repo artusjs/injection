@@ -58,17 +58,6 @@ export default class ExecutionContainer extends Container {
       return;
     }
 
-    if (md.type && md.id !== md.type) {
-      this.set({
-        ...md,
-        id: md.type,
-        value,
-      });
-    }
-    this.set({
-      ...md,
-      id: md.id,
-      value,
-    });
+    this.cacheValue(md, value);
   }
 }
