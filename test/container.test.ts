@@ -21,6 +21,64 @@ import EscapeC from './fixtures/scope_escape/escape_c';
 import EscapeD from './fixtures/scope_escape/escape_d';
 import EscapeE from './fixtures/scope_escape/escape_e';
 
+describe('container metadata reuse', () => {
+  it('should resolve inferred constructor dependencies once at registration', () => {
+    class Dependency {}
+    class Service {
+      constructor(public dependency: Dependency, public count?: number) {}
+    }
+    Reflect.defineMetadata('design:paramtypes', [Dependency, Number], Service);
+    const container = new Container('metadata');
+    container.set({ type: Dependency });
+    container.set({ type: Service, scope: ScopeEnum.TRANSIENT });
+    const getMetadata = jest.spyOn(Reflect, 'getMetadata');
+    try {
+      const first = container.get(Service);
+      const second = container.get(Service);
+      expect(first).not.toBe(second);
+      expect(first.dependency).toBe(container.get(Dependency));
+      expect(second.dependency).toBe(first.dependency);
+      expect(first.count).toBeUndefined();
+      expect(getMetadata).not.toHaveBeenCalled();
+    } finally {
+      getMetadata.mockRestore();
+    }
+  });
+
+  it('should cache empty constructor metadata at registration', () => {
+    class Service {}
+    const container = new Container('empty-metadata');
+    container.set({ type: Service, scope: ScopeEnum.TRANSIENT });
+    expect(container.getDefinition(Service)!.constructorArgs).toEqual([]);
+    const getMetadata = jest.spyOn(Reflect, 'getMetadata');
+    try {
+      expect(container.get(Service)).not.toBe(container.get(Service));
+      expect(getMetadata).not.toHaveBeenCalled();
+    } finally {
+      getMetadata.mockRestore();
+    }
+  });
+
+  it('should share cached alias metadata without changing the parent definition', () => {
+    class Service {}
+    const parent = new Container('parent');
+    parent.set({ id: 'service', type: Service, scope: ScopeEnum.EXECUTION });
+    const parentDefinition = parent.getDefinition(Service)!;
+    const first = new ExecutionContainer({}, parent);
+    const second = new ExecutionContainer({}, parent);
+    const instance = first.get('service');
+    expect(first.get(Service)).toBe(instance);
+    expect(first.getDefinition('service')).toBe(first.getDefinition(Service));
+    expect(first.getDefinition(Service)).not.toBe(parentDefinition);
+    expect(parent.getDefinition(Service)).toBe(parentDefinition);
+    expect(parentDefinition.value).toBeUndefined();
+    const otherInstance = second.get(Service);
+    expect(otherInstance).not.toBe(instance);
+    expect(second.get('service')).toBe(otherInstance);
+    expect(second.getDefinition('service')).toBe(second.getDefinition(Service));
+  });
+});
+
 const ctx = {};
 const container = new Container('default');
 const execContainer = new ExecutionContainer(ctx, container);
